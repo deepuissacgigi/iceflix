@@ -22,30 +22,7 @@ A production-ready streaming platform built with React, Vite, and Tailwind CSS.
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
 
-## Setup Instructions
 
-1.  **Clone the repository** (if not already done).
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    # Ensure Sass is installed
-    npm install -D sass
-    ```
-3.  **Environment Setup**:
-    - Rename `.env.example` to `.env` (or create `.env` if missing).
-    - Add your TMDB API Key:
-    ```env
-    VITE_TMDB_API_KEY=your_api_key_here
-    VITE_TMDB_BASE_URL=https://api.themoviedb.org/3
-    ```
-4.  **Run Development Server**:
-    ```bash
-    npm run dev
-    ```
-5.  **Build for Production**:
-    ```bash
-    npm run build
-    ```
 
 ## Project Structure
 
