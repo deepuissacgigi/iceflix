@@ -16,6 +16,7 @@ import useMyList from '../hooks/useMyList';
 import StarRating from '../components/ui/StarRating';
 import UserScoreMeter from '../components/ui/UserScoreMeter';
 import PopularityMeter from '../components/ui/PopularityMeter';
+import useDocTitle from '../hooks/useDocTitle';
 
 const MovieDetails = () => {
     const { id } = useParams();
@@ -23,6 +24,7 @@ const MovieDetails = () => {
     const isTV = location.pathname.includes('/tv/');
 
     const [item, setItem] = useState(null);
+    useDocTitle(item ? (item.title || item.name) : 'Loading...');
     const [credits, setCredits] = useState(null);
     const [similar, setSimilar] = useState([]);
     const [currentBgIndex, setCurrentBgIndex] = useState(0);

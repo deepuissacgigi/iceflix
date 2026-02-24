@@ -16,7 +16,9 @@ import {
 import { HomeSkeleton } from '../components/loaders/Loaders';
 import { useContinueWatching } from '../hooks/useContinueWatching';
 import ContinueWatchingCard from '../components/cards/ContinueWatchingCard';
+import useDocTitle from '../hooks/useDocTitle';
 const Home = () => {
+    useDocTitle('Home');
     const { history, removeHistoryItem } = useContinueWatching();
     const [data, setData] = useState({
         trending: [],

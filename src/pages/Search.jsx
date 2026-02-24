@@ -4,8 +4,10 @@ import { searchMulti } from '../services/tmdb';
 import MovieCard from '../components/cards/MovieCard';
 import { SearchGridSkeleton } from '../components/loaders/Loaders';
 import { Search as SearchIcon } from 'lucide-react';
+import useDocTitle from '../hooks/useDocTitle';
 
 const Search = () => {
+    useDocTitle('Search');
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);

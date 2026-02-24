@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import useDocTitle from '../hooks/useDocTitle';
 import { useNavigate } from 'react-router-dom';
 import Hero from '../components/ui/Hero';
 import Row from '../components/layout/Row';
@@ -37,6 +38,7 @@ const GENRES = [
 ];
 
 const TVShows = () => {
+    useDocTitle('TV Shows');
     const [loading, setLoading] = useState(true);
     const [activeGenre, setActiveGenre] = useState('all');
 

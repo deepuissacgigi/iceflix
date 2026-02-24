@@ -6,8 +6,10 @@ import useMyList from '../hooks/useMyList';
 import Button from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import useDocTitle from '../hooks/useDocTitle';
 
 const MyList = () => {
+    useDocTitle('My List');
     const { user, loading: authLoading } = useAuth();
     const { myList, removeFromMyList, loading: listLoading } = useMyList();
     const [filter, setFilter] = useState('all');

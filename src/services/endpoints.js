@@ -23,7 +23,7 @@ const ENDPOINTS = {
     MOVIE_IMAGES: (id) => `/movie/${id}/images`,
     MOVIE_VIDEOS: (id) => `/movie/${id}/videos`,
     TV_IMAGES: (id) => `/tv/${id}/images`,
-    IMAGE_BASE_URL: 'https://image.tmdb.org/t/p/original',
+    IMAGE_BASE_URL: 'https://image.tmdb.org/t/p/w1280',
     IMAGE_BASE_URL_W500: 'https://image.tmdb.org/t/p/w500',
     IMAGE_BASE_URL_W780: 'https://image.tmdb.org/t/p/w780',
     IMAGE_BASE_URL_W1280: 'https://image.tmdb.org/t/p/w1280',

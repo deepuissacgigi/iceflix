@@ -7,6 +7,7 @@ import MovieCard from '../components/cards/MovieCard';
 import ContinueWatchingCard from '../components/cards/ContinueWatchingCard';
 import { Settings, Clock, List as ListIcon, User, LogOut, Shield, Play, Eye } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
+import useDocTitle from '../hooks/useDocTitle';
 
 const TABS = [
     { id: 'mylist', label: 'My List', icon: ListIcon },
@@ -15,6 +16,7 @@ const TABS = [
 ];
 
 const Profile = () => {
+    useDocTitle('Profile');
     const { user, logoutUser } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('mylist');

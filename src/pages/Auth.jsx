@@ -5,10 +5,12 @@ import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Star, Calendar, Mail, L
 import ENDPOINTS from '../services/endpoints';
 import { getTrendingMovies, getMovieVideos } from '../services/tmdb';
 import ReactPlayer from 'react-player';
+import useDocTitle from '../hooks/useDocTitle';
 
 const SLIDE_INTERVAL = 10000;
 
 const Auth = () => {
+    useDocTitle('Sign In');
     const [mode, setMode] = useState('login'); // 'login' | 'signup'
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');

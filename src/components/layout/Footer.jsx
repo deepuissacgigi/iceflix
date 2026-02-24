@@ -32,7 +32,7 @@ const Footer = () => {
                     Service Code
                 </button>
 
-                <p className="copyright-text">&copy; 2024 ICEFLIX, Inc.</p>
+                <p className="copyright-text">&copy; 2025 ICEFLIX, Inc.</p>
             </div>
         </footer>
     );

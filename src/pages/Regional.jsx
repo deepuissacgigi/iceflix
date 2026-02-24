@@ -4,8 +4,10 @@ import { Loader2, RefreshCw, Globe, ArrowDownUp } from 'lucide-react';
 import Button from '../components/ui/Button';
 import useRegionalContent from '../hooks/useRegionalContent';
 import RegionalSpotlight from '../components/ui/RegionalSpotlight';
+import useDocTitle from '../hooks/useDocTitle';
 
 const Regional = () => {
+    useDocTitle('Regional');
     const [selectedRegionId, setSelectedRegionId] = useState('in');
     const [selectedSort, setSelectedSort] = useState('popularity.desc');
     const { content, subRegionsData, loading, error, regions, activeRegion, spotlightItem, sortOptions } = useRegionalContent(selectedRegionId, selectedSort);
