@@ -58,7 +58,7 @@ export const SearchGridSkeleton = () => {
     return (
         <div className="grid-list animate-fadeIn">
             {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="movie-card skeleton-card">
+                <div key={i} className="movie-card skeleton-card" style={{ animationDelay: `${i * 0.05}s` }}>
                     <div className="skeleton poster" />
                     <div style={{ padding: '0.75rem' }}>
                         <div className="skeleton text title" />

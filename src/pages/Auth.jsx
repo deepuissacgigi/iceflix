@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Star, Calendar, Mail, Lock, User, Film } from 'lucide-react';
 import ENDPOINTS from '../services/endpoints';
 import { getTrendingMovies, getMovieVideos } from '../services/tmdb';
-import ReactPlayer from 'react-player';
+const ReactPlayer = React.lazy(() => import('react-player'));
 import useDocTitle from '../hooks/useDocTitle';
 
 const SLIDE_INTERVAL = 10000;

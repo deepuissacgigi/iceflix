@@ -4,6 +4,8 @@ import MainLayout from '../layouts/MainLayout';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import { HomeSkeleton } from '../components/loaders/Loaders';
 
+import ProtectedRoute from '../components/common/ProtectedRoute';
+
 // Lazy-loaded pages — only downloaded when the user navigates to them
 const Home = React.lazy(() => import('../pages/Home'));
 const TVShows = React.lazy(() => import('../pages/TVShows'));
@@ -32,13 +34,30 @@ const AppRouter = () => {
                         <Route path="tv-shows" element={<TVShows />} />
                         <Route path="movies" element={<Movies />} />
                         <Route path="regional" element={<Regional />} />
-                        <Route path="my-list" element={<MyList />} />
+
                         <Route path="auth" element={<Auth />} />
 
                         <Route path="movie/:id" element={<MovieDetails />} />
                         <Route path="tv/:id" element={<MovieDetails />} />
                         <Route path="search" element={<Search />} />
-                        <Route path="profile" element={<Profile />} />
+
+                        {/* Protected Routes */}
+                        <Route
+                            path="my-list"
+                            element={
+                                <ProtectedRoute>
+                                    <MyList />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="profile"
+                            element={
+                                <ProtectedRoute>
+                                    <Profile />
+                                </ProtectedRoute>
+                            }
+                        />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

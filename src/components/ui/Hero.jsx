@@ -36,31 +36,9 @@ const Hero = ({ contentType = 'all' }) => {
                     const data = await getTrendingTV();
                     trending = data.map(t => ({ ...t, media_type: 'tv' }));
                 } else {
-                    // Mix Movies and TV Shows for 'all'
-                    // Fetch independently to prevent full failure if one endpoint errs
-                    let moviesData = [];
-                    let tvData = [];
-
-                    try {
-                        moviesData = await getTrendingMovies() || [];
-                    } catch (e) {
-                        console.error("Hero: Failed to fetch movies", e);
-                    }
-
-                    try {
-                        tvData = await getTrendingTV() || [];
-                    } catch (e) {
-                        console.error("Hero: Failed to fetch TV", e);
-                    }
-
-                    // Interleave: Movie, TV, Movie, TV...
-                    const mixed = [];
-                    const maxLength = Math.max(moviesData.length, tvData.length);
-                    for (let i = 0; i < maxLength; i++) {
-                        if (moviesData[i]) mixed.push({ ...moviesData[i], media_type: 'movie' });
-                        if (tvData[i]) mixed.push({ ...tvData[i], media_type: 'tv' });
-                    }
-                    trending = mixed;
+                    const mixedData = await getTrending();
+                    // getTrending already returns a mix of 'movie' and 'tv' with media_type attached
+                    trending = mixedData;
                 }
 
                 // Filter out anime (Animation genre from Japan)

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useMyList from '../hooks/useMyList';
 import { useAuth } from '../context/AuthContext';
-import { useWatchHistory } from '../hooks/useWatchHistory';
+import { useContinueWatching } from '../hooks/useContinueWatching';
 import MovieCard from '../components/cards/MovieCard';
 import ContinueWatchingCard from '../components/cards/ContinueWatchingCard';
 import { Settings, Clock, List as ListIcon, User, LogOut, Shield, Play, Eye } from 'lucide-react';
@@ -21,7 +21,7 @@ const Profile = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('mylist');
     const { myList } = useMyList();
-    const { history, removeFromHistory } = useWatchHistory();
+    const { history, removeHistoryItem } = useContinueWatching();
     const [autoplay, setAutoplay] = useState(true);
     const [adultContent, setAdultContent] = useState(false);
 
@@ -124,7 +124,7 @@ const Profile = () => {
                                                     ...item,
                                                     mediaType: item.media_type,
                                                 }}
-                                                onRemove={() => removeFromHistory(item.id, item.media_type)}
+                                                onRemove={() => removeHistoryItem(item.id, item.media_type)}
                                             />
                                         </div>
                                     ))}

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import ReactPlayer from 'react-player';
+const ReactPlayer = React.lazy(() => import('react-player'));
 import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
