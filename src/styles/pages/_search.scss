@@ -1,0 +1,78 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.search-page {
+    min-height: 100vh;
+    padding: 1rem;
+    max-width: $wide;
+    margin: 0 auto;
+
+    @include desktop {
+        padding: 2rem 3rem;
+    }
+
+    &__input-container {
+        margin-bottom: 2rem;
+        position: relative;
+
+        input {
+            width: 100%;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+
+            &:focus {
+                border-color: $primary;
+                box-shadow: 0 0 15px rgba($primary, 0.2);
+                background: rgba(255, 255, 255, 0.15);
+            }
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $text-gray;
+        }
+    }
+
+    &__heading {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: $text-gray;
+
+        span {
+            color: white;
+            font-weight: bold;
+        }
+    }
+
+    .grid-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+
+        @include tablet {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        @include desktop {
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+        }
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 4rem;
+        color: $text-gray;
+        font-size: 1.2rem;
+    }
+}

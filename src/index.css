@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #e50914;
+  --bg-deep: #0f0f0f;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-deep);
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

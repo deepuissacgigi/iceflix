@@ -1,0 +1,447 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ═══════════════════════════════════════════
+// PROFILE PAGE — Modern Premium Layout
+// ═══════════════════════════════════════════
+
+.profile-page {
+    min-height: 100vh;
+    background: $bg-deep;
+    color: $text-main;
+
+    // ── Hero Header ──
+    &__header {
+        position: relative;
+        padding-top: 100px;
+        overflow: hidden;
+    }
+
+    &__header-bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 30% 20%, rgba($primary, 0.15) 0%, transparent 60%),
+            radial-gradient(ellipse at 70% 80%, rgba($primary, 0.08) 0%, transparent 50%),
+            linear-gradient(180deg, rgba(15, 15, 20, 1) 0%, rgba(0, 0, 0, 1) 100%);
+        z-index: 0;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba($primary, 0.3) 50%, transparent 100%);
+        }
+    }
+
+    &__header-content {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2.5rem var(--container-padding-mobile) 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+
+        @include tablet {
+            flex-direction: row;
+            padding: 3rem var(--container-padding-desktop) 3.5rem;
+            gap: 2rem;
+            align-items: center;
+        }
+    }
+
+    // ── Avatar ──
+    &__avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3px solid rgba($primary, 0.5);
+        box-shadow: 0 0 30px rgba($primary, 0.25), 0 0 60px rgba($primary, 0.1);
+        flex-shrink: 0;
+        animation: profile-avatar-enter 0.6s ease both;
+
+        @include tablet {
+            width: 120px;
+            height: 120px;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba($primary, 0.2) 0%, rgba($primary, 0.05) 100%);
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    // ── User Info ──
+    &__user-info {
+        text-align: center;
+        animation: profile-fade-up 0.5s ease 0.15s both;
+
+        @include tablet {
+            text-align: left;
+            flex: 1;
+        }
+    }
+
+    &__name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 0.4rem;
+        letter-spacing: -0.5px;
+
+        @include desktop {
+            font-size: 2.2rem;
+        }
+    }
+
+    &__badge {
+        display: inline-block;
+        padding: 4px 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 50px;
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: 0.3px;
+    }
+
+    // ── Stats ──
+    &__stats {
+        display: flex;
+        gap: 2.5rem;
+        animation: profile-fade-up 0.5s ease 0.3s both;
+
+        @include tablet {
+            margin-left: auto;
+        }
+    }
+
+    &__stat {
+        text-align: center;
+    }
+
+    &__stat-count {
+        display: block;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: $primary;
+        line-height: 1.2;
+    }
+
+    &__stat-label {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 500;
+    }
+
+    // ── Content Area ──
+    &__content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--container-padding-mobile);
+
+        @include desktop {
+            padding: 0 var(--container-padding-desktop);
+        }
+    }
+
+    // ── Tabs ──
+    &__tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    &__tab {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 1rem 1.5rem;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+        transition: color 0.3s;
+        font-family: inherit;
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        &--active {
+            color: $text-main;
+
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: -1px;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: $primary;
+                box-shadow: 0 0 10px rgba($primary, 0.5);
+                border-radius: 2px 2px 0 0;
+                animation: profile-tab-line 0.3s ease both;
+            }
+        }
+    }
+
+    // ── Tab Content ──
+    &__tab-content {
+        animation: profile-tab-enter 0.35s ease both;
+        padding-bottom: 4rem;
+    }
+
+    // ── Grid ──
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+
+        @include tablet {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.25rem;
+        }
+
+        @include desktop {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+
+    // ── History Grid (Landscape Cards) ──
+    &__history-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+
+        @include tablet {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        @include desktop {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        // Override inline styles from ContinueWatchingCard to fit grid perfectly
+        .continue-watching-card {
+            margin-right: 0 !important;
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+    }
+
+    // ── Empty State ──
+    &__empty {
+        text-align: center;
+        padding: 5rem 2rem;
+        color: rgba(255, 255, 255, 0.25);
+
+        svg {
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.35);
+        }
+    }
+
+    // ── Settings ──
+    &__settings {
+        max-width: 640px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__setting-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 14px;
+        transition: all 0.3s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    &__setting-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba($primary, 0.1);
+        color: $primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    &__setting-info {
+        flex: 1;
+
+        h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0 0 0.15rem;
+        }
+
+        p {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.35);
+            margin: 0;
+        }
+    }
+
+    // ── Toggle Switch ──
+    &__toggle {
+        width: 48px;
+        height: 26px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 13px;
+        border: none;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+        flex-shrink: 0;
+        padding: 0;
+
+        &--on {
+            background: $primary;
+
+            .profile-page__toggle-knob {
+                transform: translateX(22px);
+            }
+        }
+    }
+
+    &__toggle-knob {
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border-radius: 50%;
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    // ── Logout Button ──
+    &__logout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 14px;
+        color: #fca5a5;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.3s;
+
+        &:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+// ── Keyframes ──
+@keyframes profile-avatar-enter {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes profile-fade-up {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes profile-tab-line {
+    0% {
+        width: 0;
+        left: 50%;
+    }
+
+    100% {
+        width: 100%;
+        left: 0;
+    }
+}
+
+@keyframes profile-tab-enter {
+    0% {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

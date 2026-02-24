@@ -1,0 +1,55 @@
+@use 'variables' as *;
+
+@mixin glass {
+    background: $surface;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@mixin neon-text($color: $neon-blue) {
+    text-shadow: 0 0 5px rgba($color, 0.7), 0 0 10px rgba($color, 0.5);
+}
+
+@mixin neon-box($color: $neon-blue) {
+    box-shadow: 0 0 10px rgba($color, 0.7), 0 0 20px rgba($color, 0.5);
+}
+
+@mixin mobile {
+    @media (max-width: #{$tablet}) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (min-width: #{$tablet}) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: #{$desktop}) {
+        @content;
+    }
+}
+
+@mixin hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

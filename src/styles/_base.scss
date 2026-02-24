@@ -1,0 +1,104 @@
+@use 'variables' as *;
+
+// Global Resets
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    // Smooth scrolling for the entire page
+    scroll-behavior: smooth;
+
+    // Font smoothing for buttery text rendering
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    font-family: $font-family;
+    background-color: $bg-deep;
+    color: $text-main;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    // Premium app feel
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+// Exceptions for Search/Inputs
+input,
+textarea,
+[contenteditable] {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+}
+
+.text-shadow {
+    text-shadow: 2px 2px 4px var(--shadow-color);
+}
+
+// Layout Utilities
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+// ═══ Page-Level Fade-In Animation ═══
+.home-page {
+    animation: pageReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pageReveal {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// ═══ Image lazy-load fade ═══
+// Apply to any img that uses loading="lazy" — fades in when painted
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+
+    &.loaded,
+    &[complete] {
+        opacity: 1;
+    }
+}
+
+// ═══ Reduce motion for accessibility ═══
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

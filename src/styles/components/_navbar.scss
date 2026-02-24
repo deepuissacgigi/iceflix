@@ -1,0 +1,419 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: $z-navbar;
+    padding: 1.5rem var(--container-padding-mobile); // Taller initial padding
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // Default: Transparent Gradient
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+
+    @include desktop {
+        padding: 2rem var(--container-padding-desktop);
+    }
+
+    // SCROLLED STATE: Futuristic Glass
+    &.scrolled {
+        padding: 0.75rem var(--container-padding-mobile);
+        background: rgba(5, 5, 10, 0.85);
+        backdrop-filter: blur(20px); // Heavy Blur
+        border-bottom: 1px solid rgba($primary, 0.3); // Neon Edge
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5),
+            0 0 15px rgba($primary, 0.1); // Ambient Glow
+
+        @include desktop {
+            padding: 0.75rem var(--container-padding-desktop);
+        }
+    }
+
+    // Left Section (Logo + Links)
+    &__left {
+        display: flex;
+        align-items: center;
+        gap: 3rem; // Professional spacing between logo and nav links
+    }
+
+    &__logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 2px; // Cinematic tracking
+        text-transform: uppercase;
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        // Animated Gradient Text
+        // Animated Gradient Text
+        background: linear-gradient(300deg, // Diagonal angle
+                #ffffff 0%,
+                $primary 25%,
+                #e0e0e0 50%,
+                $primary 75%,
+                #ffffff 100%);
+        background-size: 400% 400%; // Large canvas for all-sides movement
+        animation: logo-shimmer 20s ease infinite; // Smooth ease
+
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        // Glow
+        filter: drop-shadow(0 0 8px rgba($primary, 0.4));
+
+        @include desktop {
+            font-size: 1.8rem;
+        }
+    }
+
+
+    &__links {
+        list-style: none;
+        display: none; // Hidden on mobile
+        gap: 0.5rem;
+
+        @include desktop {
+            display: flex;
+        }
+
+        li a {
+            font-size: 0.85rem; // Slightly larger for readability
+            font-weight: 500; // refined weight
+            text-transform: capitalize; // From uppercase to capitalization for cleaner look? User said "well and professionally aligned", keeping uppercase is usually more "Netflix-like" but let's stick to existing uppercase if matches, or refine tracking. 
+            // Let's keep uppercase but improve tracking.
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: rgba(255, 255, 255, 0.75); // Better contrast
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px; // Less pill, more button-like or just transparent
+            transition: all 0.3s ease;
+            position: relative;
+
+            overflow: hidden; // For the shimmer effect
+
+            // Animated Underline
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 0%;
+                height: 2px;
+                background: $primary;
+                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 0 10px $primary;
+            }
+
+            &:hover {
+                color: white;
+                text-shadow: 0 0 8px rgba($primary, 0.6); // Neon Glow
+                // Removed box & border for cleaner look, focusing on the line animation
+
+                &::after {
+                    width: 100%;
+                }
+            }
+
+            &.active {
+                color: white;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+
+                &::after {
+                    width: 100%;
+                    background: white; // Active state is white
+                    box-shadow: 0 0 10px white;
+                }
+            }
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+
+        // SEARCH BAR - Interactive Expansion
+        .navbar__search {
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 50px; // Pill shape for modern feel
+            padding: 0.5rem;
+            width: 40px; // Initial collapsed width (icon size)
+            height: 40px;
+            cursor: pointer;
+            // overflow: hidden; // Removed to allow dropdown visibility
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); // "Spring-like" ease
+            position: relative; // For absolute icon positioning if needed
+
+            .search-icon {
+                color: rgba(255, 255, 255, 0.8);
+                min-width: 20px;
+                transition: color 0.3s;
+            }
+
+            input {
+                background: transparent;
+                color: white;
+                font-family: $font-family;
+                font-size: 0.95rem;
+                width: 0;
+                opacity: 0;
+                margin-left: 0;
+                outline: none;
+                transition: all 0.3s ease;
+                pointer-events: none; // Prevent typing when closed via tab
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+            }
+
+            // EXPANDED STATE
+            &.open {
+                width: 280px; // Wide enough for queries
+                background: rgba(0, 0, 0, 0.6);
+                border-color: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
+                box-shadow: 0 0 15px rgba($primary, 0.15); // Subtle glow
+                padding-left: 1rem; // More space when open
+
+                .search-icon {
+                    color: $primary; // Highlight icon
+                    margin-right: 0.5rem;
+                }
+
+                input {
+                    width: 100%;
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+            }
+
+            &:hover:not(.open) {
+                .search-icon {
+                    transform: scale(1.1);
+                    color: white;
+                }
+            }
+
+            // RESULTS DROPDOWN
+            .search-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10, 10, 15, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-top: none;
+                border-radius: 0 0 12px 12px;
+                margin-top: 0.5rem;
+                max-height: 400px;
+                overflow-y: auto;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                z-index: 100;
+                padding: 0.5rem 0;
+
+                ul {
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+
+                    li {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        padding: 0.75rem 1rem;
+                        cursor: pointer;
+                        transition: background 0.2s;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+                        &:last-child {
+                            border-bottom: none;
+                        }
+
+                        &:hover {
+                            background: rgba($primary, 0.1);
+
+                            h4 {
+                                color: $primary;
+                            }
+                        }
+
+                        img {
+                            width: 40px;
+                            height: 60px;
+                            object-fit: cover;
+                            border-radius: 4px;
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .info {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.2rem;
+
+                            h4 {
+                                margin: 0;
+                                color: white;
+                                font-size: 0.9rem;
+                                font-weight: 500;
+                            }
+
+                            span {
+                                color: $text-gray;
+                                font-size: 0.75rem;
+                            }
+                        }
+                    }
+                }
+
+                .no-results {
+                    padding: 1.5rem;
+                    text-align: center;
+                    color: $text-gray;
+                    font-size: 0.9rem;
+                }
+
+                // Custom Scrollbar for Dropdown
+                scrollbar-width: thin; // Firefox
+                scrollbar-color: rgba($primary, 0.4) rgba(0, 0, 0, 0.3); // Firefox
+
+                &::-webkit-scrollbar {
+                    width: 3px; // Micro width
+                }
+
+                &::-webkit-scrollbar-track {
+                    background: rgba(0, 0, 0, 0.3);
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: rgba($primary, 0.4);
+                    border-radius: 3px;
+
+                    &:hover {
+                        background: $primary;
+                    }
+                }
+            }
+        }
+
+        // Icons
+        a,
+        button {
+            color: $text-gray;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+
+            &:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+                transform: scale(1.1);
+            }
+        }
+
+        // Theme Toggle Specifics
+        .theme-toggle {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+
+            &:hover {
+                background: rgba($primary, 0.2);
+                border-color: $primary;
+                color: $primary;
+            }
+        }
+
+        // Sign-In Button (Premium)
+        .navbar__signin {
+            width: auto !important;
+            height: auto !important;
+            padding: 0.55rem 1.6rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 100px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 18px rgba(143, 0, 255, 0.3);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+
+            &:hover {
+                transform: translateY(-2px) scale(1.04);
+                box-shadow: 0 8px 28px rgba(143, 0, 255, 0.5);
+                border-color: rgba(255, 255, 255, 0.2);
+                background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+            }
+
+            &:active {
+                transform: translateY(0) scale(0.98);
+            }
+        }
+
+        // Profile Avatar
+        .profile-icon {
+            border-radius: 50%; // Circular
+            background: linear-gradient(45deg, $bg-deep, $primary);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            width: 42px;
+            height: 42px;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            &:hover {
+                border-color: $primary;
+                box-shadow: 0 0 15px $primary;
+            }
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: $primary; // Violet
+            border-radius: 50%;
+            box-shadow: 0 0 5px $primary;
+            border: 1px solid black;
+        }
+    }
+}
+
+// Keyframes for Logo Animation
+@keyframes logo-shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}

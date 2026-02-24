@@ -1,0 +1,92 @@
+// 1. Config & Helpers
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// 2. Base Styles
+@use 'base';
+
+// 3. Components
+@use 'components/navbar';
+@use 'components/hero';
+@use 'components/cards';
+@use 'components/cast-card'; // New Professional Cast Styles
+@use 'components/button';
+@use 'components/footer';
+@use 'components/details-page'; // New V3 Styles
+@use 'components/row';
+@use 'components/cast-slider'; // New Header
+@use 'components/popularity-meter'; // New Meter Styles
+@use 'components/star-rating'; // Star Rating Badge
+@use 'components/loaders';
+@use 'components/modals';
+@use 'components/player'; // New Modern Player Styles
+
+// 4. Pages
+@use 'pages/home';
+@use 'pages/search';
+@use 'pages/profile';
+@use 'pages/mylist';
+@use 'pages/auth';
+@use 'pages/regional';
+@use 'components/regional-spotlight'; // Add regional hero styles
+@use 'pages/movies';
+
+// 5. Shared/Utilities
+.grid-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+
+    @include tablet {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    // Reduced to 4 columns for bigger tiles on desktop
+    @include desktop {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+
+    // 5 columns only on very wide screens
+    @media (min-width: 1600px) {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.row-section {
+    padding: 1.5rem 1rem;
+
+    @include desktop {
+        padding: 2rem 3rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        transition: color 0.3s;
+
+        &:hover {
+            color: $primary;
+            text-shadow: 0 0 5px $primary;
+        }
+    }
+}
+
+// 6. Global Scrollbar
+::-webkit-scrollbar {
+    width: 5px; // Minimalist width
+}
+
+::-webkit-scrollbar-track {
+    background: $bg-deep;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba($primary, 0.5);
+    border-radius: 5px;
+
+    &:hover {
+        background: $primary;
+    }
+}

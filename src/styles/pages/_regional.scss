@@ -1,0 +1,176 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.regional-page {
+    min-height: 100vh;
+    background-color: $bg-deep;
+
+    &--loading,
+    &--error {
+        @include flex-center;
+        flex-direction: column;
+        min-height: 100vh;
+        gap: 1.5rem;
+        color: $text-main;
+    }
+
+    .error-text {
+        color: #ff4d4d;
+        font-size: 1.25rem;
+    }
+
+    &__container {
+        position: relative;
+        z-index: 10;
+        margin-top: -3rem; // overlap the hero slightly
+        padding: 0 var(--container-padding-mobile);
+
+        @include desktop {
+            margin-top: -4rem;
+            padding: 0 var(--container-padding-desktop);
+        }
+    }
+
+    // ── Modern Filter Bar ──
+    &__filter-bar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: rgba(20, 20, 20, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+        @include tablet {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+        }
+    }
+
+    &__filter-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    &__filters {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        @include tablet {
+            flex-direction: row;
+            gap: 0.75rem;
+        }
+    }
+
+    &__select-wrapper {
+        position: relative;
+        flex: 1;
+
+        @include tablet {
+            min-width: 240px;
+            flex: 0 1 auto;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+        }
+
+        // Sort dropdown variant — has an icon on the left
+        &--sort {
+            .regional-page__select {
+                padding-left: 2.5rem;
+            }
+        }
+    }
+
+    &__select-icon {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    &__select {
+        width: 100%;
+        appearance: none;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        outline: none;
+
+        &:focus {
+            border-color: $primary;
+            box-shadow: 0 0 0 2px rgba($primary, 0.2);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        &:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        option {
+            background: $bg-deep;
+            color: white;
+            padding: 10px;
+        }
+    }
+
+    // ── Content Area ──
+    &__rows {
+        min-height: 400px;
+
+        &--loading {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+
+        h2 {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0;
+        }
+    }
+}

@@ -1,0 +1,20 @@
+@use '../variables' as *;
+
+// Exact copy of movie-card__rating-badge style but larger
+.star-rating-badge {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    color: #ffad1f; // Star Color
+    padding: 4px 10px; // Increased from 2px 6px
+    border-radius: 4px;
+    font-size: 1rem; // Increased from 0.75rem
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px; // Increased from 4px
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .rating-value {
+        color: white;
+    }
+}

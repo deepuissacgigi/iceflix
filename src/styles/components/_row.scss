@@ -1,0 +1,205 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ═══════════════════════════════════════════════════
+//  ROW — Premium Lazy-Loaded Section
+// ═══════════════════════════════════════════════════
+
+.row-section {
+    margin-bottom: var(--row-vertical-spacing, 3rem);
+    position: relative;
+
+    // ── Initial hidden state (before IntersectionObserver triggers) ──
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+
+    // ── Revealed state ──
+    &--visible {
+        opacity: 1;
+        transform: translateY(0);
+
+        // Staggered card cascade
+        .row-item {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    // Header Alignment
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        padding-left: var(--container-padding-mobile);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+
+        @include desktop {
+            font-size: 1.5rem;
+            padding-left: var(--container-padding-desktop);
+        }
+
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        &:hover {
+            color: $primary;
+        }
+
+        &::after {
+            content: '';
+            height: 2px;
+            width: 60px;
+            background: linear-gradient(to right, $primary, transparent);
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        &:hover::after {
+            width: 120px;
+        }
+    }
+
+    // Horizontal Scroll Fade Mask
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100px;
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+        pointer-events: none;
+        z-index: 10;
+        display: block;
+    }
+
+    // ── Slider Wrapper ──
+    &__slider {
+        position: relative;
+    }
+
+    // ── Arrow Buttons ──
+    &__arrow {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        padding: 0 0.75rem;
+        background: rgba(0, 0, 0, 0.6);
+        border: none;
+        color: white;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+            background 0.3s ease;
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        &--left {
+            left: 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        &--right {
+            right: 0;
+            border-radius: 4px 0 0 4px;
+        }
+    }
+
+    &__slider:hover &__arrow {
+        opacity: 1;
+    }
+}
+
+.row-scroll {
+    display: flex;
+    gap: var(--card-gap);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+
+    // Expand bounding box to prevent clipping hover animations (transform translateY/scale)
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    margin-top: -2rem;
+    margin-bottom: -2rem;
+
+    cursor: grab;
+    user-select: none;
+
+    &:active {
+        cursor: grabbing;
+        scroll-behavior: auto;
+    }
+
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    padding-left: var(--container-padding-mobile);
+    padding-right: var(--container-padding-mobile);
+
+    @include desktop {
+        padding-left: var(--container-padding-desktop);
+        padding-right: var(--container-padding-desktop);
+        gap: 1.5rem;
+    }
+
+    &::after {
+        content: '';
+        min-width: var(--container-padding-mobile);
+
+        @include desktop {
+            min-width: var(--container-padding-desktop);
+        }
+    }
+
+    // Placeholder for height reservation when lazy loading
+    &__placeholder {
+        min-height: 280px;
+        width: 100%;
+
+        @include tablet {
+            min-height: 360px;
+        }
+
+        @include desktop {
+            min-height: 420px;
+        }
+    }
+}
+
+.row-item {
+    flex-shrink: 0;
+    width: 160px;
+
+    // ── Staggered cascade animation ──
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+    // Each card delays slightly based on its index (capped at 15 for perf)
+    transition-delay: calc(min(var(--item-index, 0), 15) * 0.04s);
+
+    @include tablet {
+        width: 220px;
+    }
+
+    @include desktop {
+        width: 260px;
+    }
+}

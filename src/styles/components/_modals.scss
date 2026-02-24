@@ -1,0 +1,42 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 900px;
+    background: black;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    position: relative;
+    aspect-ratio: 16/9;
+
+    .close-btn {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        color: white;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+
+        &:hover {
+            color: $primary;
+        }
+    }
+}

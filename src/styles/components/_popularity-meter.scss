@@ -1,0 +1,54 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.popularity-meter {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-right: 1.5rem; // Extract space from neighbor
+
+    &__ring {
+        position: relative;
+        width: 44px; // Slightly smaller for better text alignment
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg {
+            transform: rotate(-90deg);
+            overflow: visible;
+        }
+
+        .score-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem; // Updated to rem per user correction
+            font-weight: 800;
+            color: #fff;
+        }
+    }
+
+    &__labels {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.2;
+
+        .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $text-gray;
+            font-weight: 600;
+        }
+
+        .status {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+    }
+}

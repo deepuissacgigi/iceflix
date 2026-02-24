@@ -1,0 +1,66 @@
+// SCSS Variables Mapping to CSS Custom Properties
+
+// Define CSS Variables for Runtime Switching
+:root {
+    // Dark Mode (Default)
+    --primary: #8f00ff; // Electric Violet
+    --primary-hover: #a133ff;
+    --secondary: #5a00a3;
+    --secondary-hover: #45007a;
+
+    --bg-deep: #000000;
+    --surface: rgba(20, 20, 20, 0.85);
+    --surface-hover: rgba(40, 40, 40, 0.9);
+
+    --text-main: #ffffff;
+    --text-gray: #b3b3b3;
+    --text-gray-light: #d6d6d6;
+
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+
+    --neon-glow: rgba(143, 0, 255, 0.5);
+
+    // Gradients
+    --gradient-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.4), transparent);
+
+    // LAYOUT SYSTEM (Professional Spacing)
+    --container-padding-mobile: 1.5rem; // 24px
+    --container-padding-desktop: 4rem; // 64px - Broad professional margins
+    --card-gap: 1.5rem;
+    --row-vertical-spacing: 3rem;
+}
+
+
+
+
+// SCSS Variables updated to use CSS Variables
+$primary: var(--primary);
+$primary-hover: var(--primary-hover);
+$secondary: var(--secondary);
+$secondary-hover: var(--secondary-hover);
+$bg-deep: var(--bg-deep);
+$text-main: var(--text-main);
+$text-gray: var(--text-gray);
+$text-gray-light: var(--text-gray-light);
+$surface: var(--surface);
+$surface-hover: var(--surface-hover);
+
+// Layout Vars
+$container-padding-mobile: var(--container-padding-mobile);
+$container-padding-desktop: var(--container-padding-desktop);
+$card-gap: var(--card-gap);
+
+// Fonts (Static)
+$font-family: 'Outfit', sans-serif;
+
+// Z-Index (Static)
+$z-modal: 1000;
+$z-navbar: 50;
+$z-overlay: 40;
+
+// Breakpoints (Static SCSS for media queries)
+$mobile: 480px;
+$tablet: 768px;
+$desktop: 1024px;
+$wide: 1280px;

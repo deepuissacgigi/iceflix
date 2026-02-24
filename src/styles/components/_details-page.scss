@@ -1,0 +1,799 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ═══════════════════════════════════════════
+// DETAIL PAGE — Premium Redesign
+// ═══════════════════════════════════════════
+
+.detail {
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+
+    // ─────────────────────────────────
+    //  1. CINEMATIC HERO
+    // ─────────────────────────────────
+    &__hero {
+        position: relative;
+        height: 85vh;
+        width: 100%;
+
+        @include desktop {
+            height: 95vh;
+        }
+    }
+
+    &__backdrop-wrap {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+    }
+
+    &__backdrop {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        animation: detail-fade-in 1.2s ease-out;
+    }
+
+    &__hero-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background:
+            linear-gradient(to right, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%),
+            linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.4) 40%, transparent 70%);
+    }
+
+    // Backdrop Image Dots (Matched to Home Page Hero)
+    &__backdrop-dots {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 12;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        @include mobile {
+            right: 1rem;
+            gap: 0.8rem;
+        }
+    }
+
+    &__backdrop-dot {
+        width: 8px;
+        height: 8px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover:not(&--active) {
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(1.2);
+        }
+
+        &--active {
+            background: $primary;
+            transform: scale(1.5);
+            box-shadow: 0 0 10px rgba($primary, 0.6);
+        }
+    }
+
+    &__hero-content {
+        position: absolute;
+        bottom: 10%;
+        left: var(--container-padding-mobile);
+        right: var(--container-padding-mobile);
+        max-width: 700px;
+        z-index: 10;
+        animation: detail-slide-up 0.8s ease-out;
+
+        @include desktop {
+            left: var(--container-padding-desktop);
+            bottom: 15%;
+            max-width: 800px;
+        }
+    }
+
+    // ── Type Badge ──
+    &__type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        border-radius: 100px;
+        background: rgba($primary, 0.15);
+        border: 1px solid rgba($primary, 0.3);
+        color: $primary;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(8px);
+    }
+
+    // ── Title ──
+    &__title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1.05;
+        margin: 0 0 1rem;
+        letter-spacing: -1px;
+
+        @include desktop {
+            font-size: 4rem;
+        }
+    }
+
+    // ── Metadata Row (PRESERVED) ──
+    &__meta-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+
+    &__meta-dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        flex-shrink: 0;
+    }
+
+    &__meta-year,
+    &__meta-duration {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    &__badge {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        border-radius: 4px;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    // ── Tagline ──
+    &__tagline {
+        font-size: 1.15rem;
+        font-weight: 300;
+        font-style: italic;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.75);
+        border-left: 2px solid $primary;
+        padding-left: 1rem;
+        max-width: 600px;
+
+        @include desktop {
+            font-size: 1.35rem;
+        }
+    }
+
+    // ── Genre Tags ──
+    &__genres {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    &__genre-tag {
+        padding: 4px 12px;
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(6px);
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.65);
+        transition: all 0.25s;
+
+        &:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+    }
+
+    // ── Actions ──
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 1.25rem;
+    }
+
+    &__action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.7rem 1.5rem;
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+        color: white;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: $font-family;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+    }
+
+    // ── Season Selector ──
+    &__select-wrap {
+        position: relative;
+    }
+
+    &__select {
+        appearance: none;
+        padding: 0.7rem 2.5rem 0.7rem 1.2rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        outline: none;
+        min-width: 140px;
+        transition: all 0.3s;
+        font-family: $font-family;
+
+        &:hover,
+        &:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        option {
+            background: #111;
+            color: #fff;
+        }
+    }
+
+    &__select-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    // ── Episode Selector ──
+    &__episode-wrap {
+        position: relative;
+    }
+
+    &__episode-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+    }
+
+    &__episode-trigger {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.7rem 2.5rem 0.7rem 1.2rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        min-width: 200px;
+        max-width: 400px;
+        transition: all 0.3s;
+        position: relative;
+        z-index: 1000;
+        font-family: $font-family;
+
+        &:hover:not(:disabled) {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+    }
+
+    &__episode-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        text-align: left;
+    }
+
+    &__episode-chevron {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: transform 0.3s;
+        color: rgba(255, 255, 255, 0.5);
+        pointer-events: none;
+
+        &--open {
+            transform: translateY(-50%) rotate(180deg);
+        }
+    }
+
+    &__episode-dropdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 450px;
+        max-height: 420px;
+        overflow-y: auto;
+        background: rgba(17, 17, 17, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        z-index: 1001;
+        padding: 0.5rem;
+        backdrop-filter: blur(20px);
+        animation: detail-dropdown-in 0.25s ease-out;
+
+        // Scrollbar
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+    }
+
+    &__episode-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-radius: 10px;
+        cursor: pointer;
+        align-items: center;
+        transition: background 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        &--active {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    &__episode-thumb {
+        width: 100px;
+        flex-shrink: 0;
+        aspect-ratio: 16/9;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #222;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__episode-no-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.15);
+    }
+
+    &__episode-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__episode-name {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__episode-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    &__episode-meta-dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    &__episode-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        color: #fbbf24;
+    }
+
+    // ─────────────────────────────────
+    //  2. CONTENT SECTION
+    // ─────────────────────────────────
+    &__content {
+        position: relative;
+        z-index: 20;
+        margin-top: -80px;
+        background: linear-gradient(to bottom, transparent, #000 80px);
+    }
+
+    &__content-inner {
+        padding: 0 var(--container-padding-mobile) 4rem;
+
+        @include desktop {
+            padding: 0 var(--container-padding-desktop) 6rem;
+        }
+    }
+
+    // ── Two Col Layout ──
+    &__grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3rem;
+
+        @include desktop {
+            grid-template-columns: 280px 1fr;
+            gap: 4rem;
+        }
+    }
+
+    &__main {
+        min-width: 0;
+    }
+
+    // ── Section Title ──
+    &__section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        letter-spacing: -0.3px;
+
+        &::after {
+            content: '';
+            height: 2px;
+            width: 50px;
+            background: linear-gradient(to right, $primary, transparent);
+            border-radius: 2px;
+        }
+
+        &--crew {
+            margin-top: 3rem;
+        }
+    }
+
+    // ── Synopsis ──
+    &__synopsis {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.65);
+        font-weight: 300;
+        margin-bottom: 2rem;
+        max-width: 700px;
+    }
+
+    // ── Info Grid ──
+    &__info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.25rem;
+        padding: 1.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 2rem;
+    }
+
+    &__info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__info-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.35);
+        font-weight: 600;
+    }
+
+    &__info-value {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    // ── Cast Toggle ──
+    &__cast-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1.5rem auto;
+        padding: 0.7rem 1.8rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 100px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: $font-family;
+        backdrop-filter: blur(8px);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: $primary;
+            color: white;
+            transform: translateY(-2px);
+        }
+    }
+
+    // ── Cast & Crew (Collapsible) ──
+    &__cast-section {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.6s ease, opacity 0.4s ease;
+
+        &--visible {
+            max-height: 2000px;
+            opacity: 1;
+        }
+    }
+
+    &__cast-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 1rem;
+
+        @include desktop {
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1.25rem;
+        }
+    }
+
+    &__cast-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+    }
+
+    &__cast-img {
+        width: 100%;
+        aspect-ratio: 2/3;
+        overflow: hidden;
+        background: #1a1a1a;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        &:hover img {
+            transform: scale(1.05);
+        }
+    }
+
+    &__cast-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.15);
+    }
+
+    &__cast-info {
+        padding: 0.6rem;
+
+        h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 2px;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin: 0;
+            font-weight: 500;
+        }
+    }
+
+    &__crew-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+
+    &__crew-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        &:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: $primary;
+        }
+    }
+
+    &__crew-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    &__crew-job {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: $primary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    // ── Poster Sidebar ──
+    &__sidebar {
+        display: none;
+
+        @include desktop {
+            display: block;
+            position: sticky;
+            top: 2rem;
+            align-self: start;
+        }
+    }
+
+    &__poster-card {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    }
+
+    &__poster-glow {
+        position: absolute;
+        inset: -20%;
+        background: radial-gradient(ellipse at center, color-mix(in srgb, $primary, transparent 80%), transparent 70%);
+        z-index: -1;
+        filter: blur(40px);
+        pointer-events: none;
+    }
+
+    &__similar-row-override {
+        margin-top: 4rem;
+        padding-top: 3rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+        // Override Row component's default top padding to fit detail page flow
+        .row {
+            padding-top: 0;
+            margin-bottom: 0;
+
+            .row__header {
+                padding-left: 0;
+                margin-bottom: 1.5rem;
+                font-size: 1.35rem; // Match detail__section-title
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────
+// ANIMATIONS (CSS-only, no framer-motion)
+// ─────────────────────────────────
+
+@keyframes detail-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes detail-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes detail-dropdown-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

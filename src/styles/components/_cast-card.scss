@@ -1,0 +1,68 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.cast-card {
+    width: 110px; // Compact width
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: translateY(-5px);
+
+        img {
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+    }
+
+    img {
+        width: 110px;
+        height: 110px; // Square-ish/Circle profile
+        object-fit: cover;
+        border-radius: 50%; // Professional Circle Profile
+        margin-bottom: 0.75rem;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s;
+        background: #222;
+        display: block; // Fix spacing
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    // Fallback placeholder container
+    .placeholder {
+        width: 110px;
+        height: 110px;
+        background: #222;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    h3 {
+        font-size: 0.85rem; // Small name
+        color: #fff;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    p {
+        font-size: 0.75rem; // Smaller character name
+        color: $text-gray;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+}

@@ -1,0 +1,768 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ═══════════════════════════════════════════════════════
+// THE ULTIMATE AUTH PAGE — Split Layout
+// Left: Cinematic Video/Image Showcase
+// Right: Premium Glassmorphism Form
+// ═══════════════════════════════════════════════════════
+
+.auth-split {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    font-family: $font-family;
+    color: white;
+    background: #050508;
+    overflow: hidden;
+
+    // Mount animation
+    opacity: 0;
+
+    &--ready {
+        opacity: 1;
+    }
+
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // Mobile: stack
+    flex-direction: column;
+
+    @include desktop {
+        flex-direction: row;
+    }
+
+    // ═══════════════════════════
+    // LEFT — Cinematic Showcase
+    // ═══════════════════════════
+    &__left {
+        position: relative;
+        flex: 1;
+        min-height: 35vh;
+        overflow: hidden;
+
+        @include desktop {
+            min-height: auto;
+            flex: 1.15;
+        }
+    }
+
+    // ═══════════════════════════
+    // RIGHT — Form Panel
+    // ═══════════════════════════
+    &__right {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.5rem;
+        background: rgba(8, 8, 12, 0.97);
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        overflow-y: auto;
+
+        @include desktop {
+            flex: 0 0 480px;
+            padding: 3rem;
+            border-top: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.04);
+
+            // Glow bleed edge
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100px;
+                width: 100px;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(8, 8, 12, 0.9));
+                z-index: 5;
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// SHOWCASE — Video + Image Slideshow
+// ═══════════════════════════════════════════
+
+.auth-showcase {
+    position: absolute;
+    inset: 0;
+
+    // ── Image Slides ──
+    &__slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+        z-index: 1;
+
+        &--active {
+            opacity: 1;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: auth-kb 25s ease-in-out infinite alternate;
+        }
+    }
+
+    // ── Video Layer (sits ABOVE images, fades in when ready) ──
+    &__video-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out;
+        overflow: hidden;
+
+        &--visible {
+            opacity: 1;
+        }
+
+        // react-player wrapper
+        >div {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 180vw !important;
+            height: 180vh !important;
+            min-width: 100%;
+            min-height: 100%;
+
+            iframe {
+                width: 100% !important;
+                height: 100% !important;
+                pointer-events: none;
+            }
+        }
+    }
+
+    // ── Gradient Overlays ──
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        background:
+            // Primary color accent
+            radial-gradient(ellipse at 15% 50%, color-mix(in srgb, var(--primary), transparent 82%) 0%, transparent 55%),
+            // Bottom fade
+            linear-gradient(0deg, rgba(8, 8, 12, 0.85) 0%, rgba(8, 8, 12, 0.15) 35%, transparent 65%),
+            // Top subtle
+            linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 20%);
+    }
+
+    // ── Right edge fade ──
+    &__edge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 140px;
+        height: 100%;
+        z-index: 4;
+        background: linear-gradient(90deg, transparent, rgba(8, 8, 12, 1));
+        pointer-events: none;
+        display: none;
+
+        @include desktop {
+            display: block;
+        }
+    }
+
+    // ── Movie Info ──
+    &__info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 5;
+        padding: 2rem 2rem 2.5rem;
+        animation: auth-fade-up 0.8s ease both;
+
+        @include desktop {
+            padding: 2.5rem 3rem 3rem;
+            right: 140px;
+        }
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        color: rgba(255, 255, 255, 0.75);
+
+        &--live {
+            background: rgba($primary, 0.2);
+            color: $primary;
+            animation: auth-pulse-badge 2s infinite;
+        }
+    }
+
+    &__title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 0.4rem;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+
+        @include desktop {
+            font-size: 2.2rem;
+        }
+    }
+
+    &__desc {
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.4);
+        margin: 0;
+        max-width: 500px;
+        display: none;
+
+        @include desktop {
+            display: block;
+        }
+    }
+
+    // ── Slide Dots ──
+    &__dots {
+        position: absolute;
+        z-index: 10;
+        display: none;
+
+        @include desktop {
+            display: flex;
+            left: 3rem;
+            bottom: 3rem;
+            gap: 8px;
+        }
+    }
+
+    &__dot {
+        width: 28px;
+        height: 3px;
+        border: none;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.15);
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &--active {
+            width: 48px;
+            background: $primary;
+            box-shadow: 0 0 14px color-mix(in srgb, var(--primary), transparent 40%);
+        }
+
+        &:hover:not(&--active) {
+            background: rgba(255, 255, 255, 0.35);
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// FORM PANEL
+// ═══════════════════════════════════════════
+
+.auth-form-panel {
+    width: 100%;
+    max-width: 380px;
+
+    // ── Brand ──
+    &__brand {
+        display: block;
+        text-decoration: none;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -2px;
+        color: white;
+        margin-bottom: 2rem;
+
+        .accent {
+            color: $primary;
+        }
+
+        @include desktop {
+            font-size: 1.8rem;
+        }
+    }
+
+    // ── Header ──
+    &__header {
+        margin-bottom: 1.75rem;
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 0.3rem;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+
+            @include desktop {
+                font-size: 1.75rem;
+            }
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.35);
+            margin: 0;
+        }
+    }
+
+    // ── Error ──
+    &__error {
+        background: rgba(239, 68, 68, 0.06);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 12px;
+        padding: 0.7rem 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.82rem;
+        color: #fca5a5;
+        animation: auth-shake 0.5s ease;
+    }
+
+    // ── Divider ──
+    &__divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 1.25rem 0;
+
+        div {
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        span {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    // ── Form ──
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    // ── Forgot ──
+    &__forgot {
+        text-align: right;
+        margin: 2px 0 8px;
+
+        a {
+            font-size: 0.76rem;
+            color: rgba(255, 255, 255, 0.25);
+            text-decoration: none;
+            transition: color 0.2s;
+
+            &:hover {
+                color: $primary;
+            }
+        }
+    }
+
+    // ── Toggle ──
+    &__toggle {
+        text-align: center;
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.3);
+        margin: 1.75rem 0 0;
+
+        a {
+            color: $primary;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            transition: all 0.2s;
+
+            &:hover {
+                gap: 6px;
+                color: var(--primary-hover);
+            }
+        }
+    }
+
+    // ── Legal ──
+    &__legal {
+        text-align: center;
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.12);
+        margin: 1.5rem 0 0;
+
+        a {
+            color: rgba(255, 255, 255, 0.2);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+
+            &:hover {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// AUTH FIELD — Animated Floating Label
+// ═══════════════════════════════════════════
+
+.auth-field {
+    position: relative;
+    margin-bottom: 14px;
+    animation: auth-field-enter 0.5s ease both;
+
+    &--delay-1 {
+        animation-delay: 0.1s;
+    }
+
+    &--delay-2 {
+        animation-delay: 0.2s;
+    }
+
+    &--delay-3 {
+        animation-delay: 0.3s;
+    }
+
+    // Field Icon
+    &__icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.15);
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        transition: color 0.3s;
+        pointer-events: none;
+    }
+
+    label {
+        position: absolute;
+        left: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.3);
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: left center;
+        z-index: 2;
+    }
+
+    input {
+        width: 100%;
+        padding: 20px 44px 8px 40px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1.5px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        color: white;
+        font-size: 0.92rem;
+        font-family: $font-family;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 30px rgba(8, 8, 12, 0.98) inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+            border-radius: 12px;
+        }
+    }
+
+    // ── Animated highlight bar ──
+    &__highlight {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+        border-radius: 0 0 12px 12px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 3;
+        box-shadow: 0 0 12px color-mix(in srgb, var(--primary), transparent 50%);
+    }
+
+    // ── Eye toggle ──
+    &__eye {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.15);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s;
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    // ── FOCUSED + FILLED states ──
+    &--focused,
+    &--filled {
+        label {
+            top: 10px;
+            left: 40px;
+            transform: translateY(0) scale(0.72);
+            letter-spacing: 0.5px;
+        }
+    }
+
+    &--focused {
+        label {
+            color: $primary;
+        }
+
+        .auth-field__icon {
+            color: $primary;
+        }
+
+        input {
+            border-color: $primary;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 88%);
+        }
+
+        .auth-field__highlight {
+            left: 0;
+            width: 100%;
+        }
+    }
+
+    &--filled:not(&--focused) {
+        label {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// BUTTONS
+// ═══════════════════════════════════════════
+
+.auth-btn-social {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 13px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: $font-family;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+.auth-btn-submit {
+    position: relative;
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: $font-family;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.35s ease;
+    overflow: hidden;
+    z-index: 1;
+
+    &__bg {
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: -1;
+    }
+
+    // Shimmer
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.12) 42%, rgba(255, 255, 255, 0.22) 50%, rgba(255, 255, 255, 0.12) 58%, transparent 70%);
+        transition: left 0.7s ease;
+        z-index: 2;
+    }
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px color-mix(in srgb, var(--primary), transparent 40%), 0 4px 15px rgba(0, 0, 0, 0.3);
+
+        .auth-btn-submit__bg {
+            opacity: 1;
+        }
+
+        &::after {
+            left: 100%;
+        }
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 4px 15px color-mix(in srgb, var(--primary), transparent 60%);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+// ═══════════════════════════════════════════
+// KEYFRAMES
+// ═══════════════════════════════════════════
+
+@keyframes auth-kb {
+    0% {
+        transform: scale(1.05) translate(0, 0);
+    }
+
+    100% {
+        transform: scale(1.15) translate(-2%, -1.5%);
+    }
+}
+
+@keyframes auth-fade-up {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes auth-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    15% {
+        transform: translateX(-8px);
+    }
+
+    30% {
+        transform: translateX(7px);
+    }
+
+    45% {
+        transform: translateX(-5px);
+    }
+
+    60% {
+        transform: translateX(4px);
+    }
+
+    75% {
+        transform: translateX(-2px);
+    }
+}
+
+@keyframes auth-pulse-badge {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+@keyframes auth-field-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

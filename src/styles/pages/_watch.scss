@@ -1,0 +1,55 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.watch-page {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: $z-modal;
+    overflow: hidden;
+
+    &__overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 2rem;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+
+        &.visible {
+            opacity: 1;
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            transition: color 0.3s;
+
+            &:hover {
+                color: $text-gray;
+            }
+
+            span {
+                font-size: 1.2rem;
+                font-weight: 500;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            }
+
+            svg {
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+            }
+        }
+    }
+
+    .not-available {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        background: black;
+    }
+}
