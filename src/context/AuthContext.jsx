@@ -3,12 +3,14 @@ import { supabase } from '../lib/supabase';
 import { authService } from '../services/authService';
 import { clearContinueWatching, getContinueWatching } from '../utils/continueWatching';
 import { clearList as clearMyList, getMyList } from '../utils/myList';
+import { useNotification } from './NotificationContext';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { addNotification } = useNotification();
 
     useEffect(() => {
         // Initial Session Check
@@ -23,10 +25,25 @@ export const AuthProvider = ({ children }) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+
+            if (event === 'SIGNED_IN') {
+                const name = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || 'Streamer';
+                const avatar = session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || null;
+                addNotification(`Welcome back, ${name}!`, 'success', {
+                    thumbnail: avatar,
+                    title: 'Signed In',
+                    subtitle: session?.user?.email || '',
+                });
+            } else if (event === 'SIGNED_OUT') {
+                addNotification('You have been signed out', 'info', {
+                    title: 'Session Ended',
+                    subtitle: 'Your local data has been cleared',
+                });
+            }
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [addNotification]);
 
     const loginWithGoogle = async () => {
         return await authService.signInWithGoogle();

@@ -1,11 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, User, X } from 'lucide-react';
+import { Search, Bell, User, X, Trash2, Play, Plus, Minus, LogIn, LogOut, Info } from 'lucide-react';
 import useDebounce from '../../hooks/useDebounce';
 import { useAuth } from '../../context/AuthContext';
 import { searchMulti } from '../../services/tmdb';
 import ENDPOINTS from '../../services/endpoints';
 import { Spinner, SearchListSkeleton } from '../loaders/Loaders';
+import { useNotification } from '../../context/NotificationContext';
+
+const getNotifIcon = (type) => {
+    switch (type) {
+        case 'play': return <Play size={14} />;
+        case 'add': return <Plus size={14} />;
+        case 'remove': return <Minus size={14} />;
+        case 'success': return <LogIn size={14} />;
+        case 'info': return <LogOut size={14} />;
+        case 'signup': return <User size={14} />;
+        default: return <Info size={14} />;
+    }
+};
+
+const getNotifColor = (type) => {
+    switch (type) {
+        case 'play': return '#4dff88';
+        case 'add': return '#6366f1';
+        case 'remove': return '#f87171';
+        case 'success': return '#34d399';
+        case 'info': return '#a78bfa';
+        default: return '#94a3b8';
+    }
+};
+
+const getRelativeTime = (timestamp) => {
+    const diff = Math.floor((Date.now() - timestamp) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    return new Date(timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -18,9 +51,12 @@ const Navbar = () => {
 
     const searchRef = useRef(null);
     const inputRef = useRef(null);
+    const notifRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { notifications, unreadCount, markAllAsRead, clearAll } = useNotification();
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -44,6 +80,20 @@ const Navbar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Click Outside to Close Notifications
+    useEffect(() => {
+        const handleClickOutsideNotif = (event) => {
+            if (notifRef.current && !notifRef.current.contains(event.target)) {
+                setIsNotifOpen(false);
+            }
+        };
+
+        if (isNotifOpen) {
+            document.addEventListener('mousedown', handleClickOutsideNotif);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutsideNotif);
+    }, [isNotifOpen]);
+
     // Fetch Results on Debounce
     useEffect(() => {
         const fetchResults = async () => {
@@ -55,8 +105,7 @@ const Navbar = () => {
             setLoading(true);
             try {
                 const data = await searchMulti(debouncedSearchValue);
-                // Filter out generic people or items without posters if desired, but general popularity is requested
-                setResults(data.slice(0, 5)); // Limit to 5 inline results
+                setResults(data.slice(0, 5));
             } catch (error) {
                 console.error('Search error:', error);
             } finally {
@@ -139,7 +188,7 @@ const Navbar = () => {
                                 <ul>
                                     {results.map((item) => (
                                         <li key={item.id} onClick={(e) => {
-                                            e.stopPropagation(); // Prevent toggling search
+                                            e.stopPropagation();
                                             handleResultClick(item.id, item.media_type || 'movie');
                                         }}>
                                             <img
@@ -162,10 +211,72 @@ const Navbar = () => {
                     )}
                 </div>
 
-                <button className="relative">
-                    <Bell />
-                    <span className="notification-dot"></span>
-                </button>
+                {/* Notifications */}
+                <div className="navbar__notif-wrapper" ref={notifRef}>
+                    <button
+                        className="relative"
+                        onClick={() => {
+                            setIsNotifOpen(!isNotifOpen);
+                            if (!isNotifOpen && unreadCount > 0) markAllAsRead();
+                        }}
+                    >
+                        <Bell />
+                        {unreadCount > 0 && (
+                            <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                        )}
+                    </button>
+
+                    {isNotifOpen && (
+                        <div className="notif-dropdown">
+                            <div className="notif-header">
+                                <h3>Activity</h3>
+                                <span className="notif-count">{notifications.length} events</span>
+                                {notifications.length > 0 && (
+                                    <button onClick={clearAll} className="clear-btn" title="Clear All">
+                                        <Trash2 size={14} />
+                                    </button>
+                                )}
+                            </div>
+                            <div className="notif-body">
+                                {notifications.length > 0 ? (
+                                    notifications.map(n => (
+                                        <div key={n.id} className={`notif-item notif-item--${n.type} ${n.read ? 'read' : 'unread'}`}>
+                                            {/* Thumbnail or Icon */}
+                                            {n.thumbnail ? (
+                                                <div className="notif-thumb">
+                                                    <img src={n.thumbnail} alt="" loading="lazy" />
+                                                    <span className="notif-type-badge" style={{ background: getNotifColor(n.type) }}>
+                                                        {getNotifIcon(n.type)}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <div className="notif-icon-circle" style={{ background: `${getNotifColor(n.type)}20`, color: getNotifColor(n.type) }}>
+                                                    {getNotifIcon(n.type)}
+                                                </div>
+                                            )}
+
+                                            {/* Content */}
+                                            <div className="notif-content">
+                                                <div className="notif-top-row">
+                                                    {n.title && <span className="notif-title">{n.title}</span>}
+                                                    <span className="notif-time">{getRelativeTime(n.timestamp)}</span>
+                                                </div>
+                                                <p className="notif-message">{n.message}</p>
+                                                {n.subtitle && <span className="notif-subtitle">{n.subtitle}</span>}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="notif-empty">
+                                        <Bell size={32} strokeWidth={1} />
+                                        <p>No activity yet</p>
+                                        <span>Your actions will appear here</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 {user ? (
                     <Link to="/profile" className="profile-icon">
@@ -196,3 +307,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

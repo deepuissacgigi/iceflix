@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getMyList, addItem, removeItem, MyListEvents, normalizeItem } from '../utils/myList';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useNotification } from '../context/NotificationContext';
 
 /**
  * Hook to manage My List state and interactions.
@@ -11,6 +12,7 @@ const useMyList = () => {
     const [list, setList] = useState([]);
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
+    const { addNotification } = useNotification();
 
     // Fetch List
     const fetchList = useCallback(async () => {
@@ -100,12 +102,18 @@ const useMyList = () => {
             if (error) {
                 // Ignore duplicate key error silently
                 if (error.code !== '23505') throw error;
+            } else {
+                addNotification(`Added to My List`, 'add', {
+                    thumbnail: normalized.poster_path ? `https://image.tmdb.org/t/p/w92${normalized.poster_path}` : null,
+                    title: normalized.title,
+                    subtitle: normalized.media_type === 'tv' ? 'TV Show' : 'Movie',
+                });
             }
             fetchList();
         } catch (e) {
             console.error("Supabase Add Error:", e);
         }
-    }, [user, fetchList]);
+    }, [user, fetchList, addNotification]);
 
     const remove = useCallback(async (id, mediaType) => {
         if (!user) {
@@ -118,12 +126,17 @@ const useMyList = () => {
             if (mediaType) {
                 query = query.eq('media_type', mediaType);
             }
-            await query;
+            const { error } = await query;
+            if (!error) {
+                addNotification('Removed from My List', 'remove', {
+                    subtitle: mediaType === 'tv' ? 'TV Show' : 'Movie',
+                });
+            }
             fetchList();
         } catch (e) {
             console.error("Supabase Remove Error:", e);
         }
-    }, [user, fetchList]);
+    }, [user, fetchList, addNotification]);
 
     const checkIsAdded = useCallback((id, mediaType) => {
         return list.some(i => i.id === id && (!mediaType || i.media_type === mediaType));

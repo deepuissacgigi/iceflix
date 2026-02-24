@@ -11,6 +11,7 @@ import { getMovieDetails, getTVDetails } from '../../services/tmdb';
 import { useAdblock } from '../../hooks/useAdblock';
 import { setAdsWarningSeen } from '../../utils/adblockStorage';
 import { useContinueWatching } from '../../hooks/useContinueWatching';
+import { useNotification } from '../../context/NotificationContext';
 
 // Duration for CSS exit animation (ms) — must match SCSS transition duration
 const EXIT_DURATION = 500;
@@ -28,6 +29,29 @@ const VideoPlayerModal = () => {
     );
 
     const { saveProgress } = useContinueWatching();
+    const { addNotification } = useNotification();
+    const lastNotifiedId = React.useRef(null);
+
+    useEffect(() => {
+        if (isOpen && id && lastNotifiedId.current !== id) {
+            lastNotifiedId.current = id;
+            if (title) {
+                addNotification(`Now playing`, 'play', {
+                    thumbnail: backdrop
+                        ? (backdrop.startsWith('http')
+                            ? backdrop.replace(/\/(?:original|w\d+)\//, '/w92/')
+                            : `https://image.tmdb.org/t/p/w92${backdrop}`)
+                        : null,
+                    title: title,
+                    subtitle: type === 'tv'
+                        ? `TV Show${season ? ` · S${season}` : ''}${episode ? ` E${episode}` : ''}`
+                        : 'Movie',
+                });
+            }
+        } else if (!isOpen) {
+            lastNotifiedId.current = null;
+        }
+    }, [isOpen, id, title, type, season, episode, backdrop, addNotification]);
 
     // ── Animation lifecycle ──
     // shouldRender keeps the DOM alive during exit animation
