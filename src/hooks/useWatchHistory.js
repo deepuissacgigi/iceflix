@@ -4,11 +4,16 @@ import { supabase } from '../lib/supabase';
 
 export const useWatchHistory = () => {
     const [history, setHistory] = useState([]);
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
 
     const fetchHistory = useCallback(async () => {
+        if (authLoading) return;
+
+        setLoading(true);
+
         if (!user) {
+            setHistory([]);
             setLoading(false);
             return;
         }
@@ -38,10 +43,11 @@ export const useWatchHistory = () => {
             setHistory(mapped);
         } catch (error) {
             console.error('Error fetching watch history:', error);
+            setHistory([]);
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, authLoading]);
 
     useEffect(() => {
         fetchHistory();

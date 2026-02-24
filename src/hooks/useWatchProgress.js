@@ -1,32 +1,27 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { saveContinueWatching } from '../utils/continueWatching';
-import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
 
 /**
  * Tracks how long the player has been open and persists progress.
- * Writes DIRECTLY to localStorage / Supabase — no circular hook deps.
+ * Now routes all saving through the provided `saveProgress` function
+ * to guarantee UI consistency and unified DB/localStorage handling.
  */
-export const useWatchProgress = (isOpen, mediaInfo) => {
+export const useWatchProgress = (isOpen, mediaInfo, saveProgress) => {
     const progressRef = useRef(0);
     const trackingRef = useRef(null);
     const saveRef = useRef(null);
     const mediaRef = useRef(mediaInfo);
-    const { user } = useAuth();
 
     // Keep mediaInfo ref fresh without triggering effects
     useEffect(() => {
         mediaRef.current = mediaInfo;
     }, [mediaInfo]);
 
-    // ── Persist helper (no hook state — writes directly) ──
+    // ── Persist helper ──
     const persist = useCallback(() => {
         const info = mediaRef.current;
-        if (!info?.id || progressRef.current <= 0) {
-            console.log('[WP] persist skipped — no id or progress=0');
+        if (!info?.id || progressRef.current <= 0 || !saveProgress) {
             return;
         }
-        console.log('[WP] PERSISTING:', { id: info.id, progress: progressRef.current, user: !!user });
 
         const entry = {
             id: info.id,
@@ -36,30 +31,11 @@ export const useWatchProgress = (isOpen, mediaInfo) => {
             mediaType: info.mediaType || 'movie',
             season: info.season,
             episode: info.episode,
-            progress: progressRef.current,
-            duration: info.duration || 0,
         };
 
-        if (user) {
-            // DB save — fire-and-forget
-            supabase.from('watch_history').upsert({
-                user_id: user.id,
-                media_id: entry.id,
-                media_type: entry.mediaType,
-                title: entry.title,
-                poster_path: entry.poster,
-                backdrop_path: entry.backdrop,
-                duration: entry.duration,
-                watched: entry.progress,
-                last_watched_at: new Date().toISOString(),
-            }, { onConflict: 'user_id, media_id, media_type' }).then(({ error }) => {
-                if (error) console.error('WatchProgress DB save error:', error);
-            });
-        } else {
-            // Guest — localStorage (fires CW_UPDATE_EVENT automatically)
-            saveContinueWatching(entry);
-        }
-    }, [user]);
+        // Pass directly to the saveProgress callback from useContinueWatching
+        saveProgress(entry, progressRef.current, info.duration || 0);
+    }, [saveProgress]);
 
     // ── Start / Stop tracking ─────────────────────────────
     useEffect(() => {
@@ -94,5 +70,5 @@ export const useWatchProgress = (isOpen, mediaInfo) => {
             // Final persist on cleanup
             if (progressRef.current > 0) persist();
         };
-    }, [isOpen, mediaInfo?.id]); // Only re-run when player opens/closes or media changes
+    }, [isOpen, mediaInfo?.id, persist]);
 };

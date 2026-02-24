@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bookmark, Film, Tv, LayoutGrid } from 'lucide-react';
+import { Bookmark, Film, Tv, LayoutGrid, LogIn, Loader2 } from 'lucide-react';
 import MovieCard from '../components/cards/MovieCard';
 import useMyList from '../hooks/useMyList';
 import Button from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const MyList = () => {
-    const { myList, removeFromMyList } = useMyList();
-    const [filter, setFilter] = useState('all'); // 'all', 'movie', 'tv'
+    const { user, loading: authLoading } = useAuth();
+    const { myList, removeFromMyList, loading: listLoading } = useMyList();
+    const [filter, setFilter] = useState('all');
     const [filteredList, setFilteredList] = useState([]);
     const navigate = useNavigate();
 
@@ -19,6 +21,17 @@ const MyList = () => {
             setFilteredList(myList.filter(item => item.media_type === filter));
         }
     }, [myList, filter]);
+
+    // Wait for auth to resolve before showing anything
+    if (authLoading) {
+        return (
+            <div className="mylist-page">
+                <div className="empty-state">
+                    <Loader2 size={48} className="animate-spin" style={{ color: 'var(--primary)' }} />
+                </div>
+            </div>
+        );
+    }
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -34,6 +47,20 @@ const MyList = () => {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0 }
     };
+
+    if (listLoading) {
+        return (
+            <div className="mylist-page">
+                <div className="mylist-page__header">
+                    <h1>My List</h1>
+                </div>
+                <div className="empty-state">
+                    <Loader2 size={48} className="animate-spin" style={{ color: 'var(--primary)' }} />
+                    <p>Loading your list...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (myList.length === 0) {
         return (

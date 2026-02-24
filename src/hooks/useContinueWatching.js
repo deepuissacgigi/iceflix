@@ -11,15 +11,19 @@ import {
 const FINISHED_THRESHOLD = 0.90;
 
 export const useContinueWatching = () => {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // ── Fetch ──────────────────────────────────────────────
     const fetchHistory = useCallback(async () => {
-        let mergedHistory = getContinueWatching(); // Always get local as baseline
+        // Don't fetch until auth has resolved
+        if (authLoading) return;
+
+        setLoading(true);
 
         if (user) {
+            // LOGGED IN → fetch from Supabase EXCLUSIVELY to prevent guest data bleed
             try {
                 const { data, error } = await supabase
                     .from('watch_history')
@@ -28,6 +32,7 @@ export const useContinueWatching = () => {
 
                 if (error) {
                     if (error.code !== 'PGRST205') console.error('CW fetch error:', error);
+                    setHistory([]);
                 } else if (data && data.length > 0) {
                     const dbHistory = data.map(item => ({
                         ...item,
@@ -39,18 +44,21 @@ export const useContinueWatching = () => {
                         poster: item.poster_path,
                         updatedAt: new Date(item.last_watched_at).getTime(),
                     }));
-
-                    // Supabase entries take priority over localStorage if present
-                    mergedHistory = dbHistory;
+                    setHistory(dbHistory);
+                } else {
+                    setHistory([]);
                 }
             } catch (e) {
                 console.error('CW fetch exception:', e);
+                setHistory([]);
             }
+        } else {
+            // GUEST → use localStorage exclusively
+            setHistory(getContinueWatching());
         }
 
-        setHistory(mergedHistory);
         setLoading(false);
-    }, [user]);
+    }, [user, authLoading]);
 
     // ── Subscribe ─────────────────────────────────────────
     useEffect(() => {
@@ -58,7 +66,7 @@ export const useContinueWatching = () => {
 
         let channel;
         if (user) {
-            // Supabase realtime
+            // Supabase realtime for logged-in users
             channel = supabase
                 .channel('cw_changes')
                 .on(
@@ -69,15 +77,19 @@ export const useContinueWatching = () => {
                 .subscribe();
         }
 
-        // Always listen to local events to handle fallback logic
-        const onUpdate = () => fetchHistory();
-        window.addEventListener(CW_UPDATE_EVENT, onUpdate);
-        window.addEventListener('storage', onUpdate); // cross-tab
+        // Always listen for local storage changes so VideoPlayerModal quick-saves apply INSTANTLY for guests
+        const onLocalUpdate = () => {
+            if (!user) {
+                setHistory(getContinueWatching());
+            }
+        };
+        window.addEventListener(CW_UPDATE_EVENT, onLocalUpdate);
+        window.addEventListener('storage', onLocalUpdate);
 
         return () => {
             if (channel) supabase.removeChannel(channel);
-            window.removeEventListener(CW_UPDATE_EVENT, onUpdate);
-            window.removeEventListener('storage', onUpdate);
+            window.removeEventListener(CW_UPDATE_EVENT, onLocalUpdate);
+            window.removeEventListener('storage', onLocalUpdate);
         };
     }, [user, fetchHistory]);
 
@@ -92,10 +104,8 @@ export const useContinueWatching = () => {
             return;
         }
 
-        // ALWAYS save to local storage
-        saveContinueWatching({ ...item, progress, duration });
-
         if (user) {
+            // Logged In: Only save to database (Supabase realtime will update the UI)
             try {
                 const { error } = await supabase.from('watch_history').upsert({
                     user_id: user.id,
@@ -115,15 +125,16 @@ export const useContinueWatching = () => {
             } catch (e) {
                 console.error('CW save exception:', e);
             }
+        } else {
+            // Guest: Save to local storage
+            saveContinueWatching({ ...item, progress, duration });
         }
     }, [user]);
 
     // ── Remove ────────────────────────────────────────────
     const removeItem = useCallback(async (id, mediaType) => {
-        // ALWAYS remove locally
-        removeContinueWatching(id, mediaType);
-
         if (user) {
+            // Logged In: Only remove from database
             try {
                 const { error } = await supabase
                     .from('watch_history')
@@ -138,6 +149,9 @@ export const useContinueWatching = () => {
             } catch (e) {
                 console.error('CW remove exception:', e);
             }
+        } else {
+            // Guest: Only remove from local storage
+            removeContinueWatching(id, mediaType);
         }
     }, [user]);
 

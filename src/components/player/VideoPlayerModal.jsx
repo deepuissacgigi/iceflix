@@ -10,7 +10,7 @@ import { getMovieDetails, getTVDetails } from '../../services/tmdb';
 
 import { useAdblock } from '../../hooks/useAdblock';
 import { setAdsWarningSeen } from '../../utils/adblockStorage';
-import { saveContinueWatching } from '../../utils/continueWatching';
+import { useContinueWatching } from '../../hooks/useContinueWatching';
 
 // Duration for CSS exit animation (ms) — must match SCSS transition duration
 const EXIT_DURATION = 500;
@@ -26,6 +26,8 @@ const VideoPlayerModal = () => {
         minimizePlayer,
         maximizePlayer
     );
+
+    const { saveProgress } = useContinueWatching();
 
     // ── Animation lifecycle ──
     // shouldRender keeps the DOM alive during exit animation
@@ -97,7 +99,7 @@ const VideoPlayerModal = () => {
         season,
         episode,
         duration,
-    });
+    }, saveProgress);
 
     // Player State
     const [currentServer, setCurrentServer] = useState(0);
@@ -122,8 +124,8 @@ const VideoPlayerModal = () => {
             setLoading(true);
             setCurrentServer(0);
 
-            // Direct save to Continue Watching
-            saveContinueWatching({
+            // Direct save to Continue Watching via unified hook
+            saveProgress({
                 id,
                 title: title || '',
                 backdrop: backdrop || '',
@@ -131,11 +133,9 @@ const VideoPlayerModal = () => {
                 mediaType: type || 'movie',
                 season,
                 episode,
-                progress: 1,
-                duration: 0,
-            });
+            }, 1, duration || 0);
         }
-    }, [isOpen, id, season, episode]);
+    }, [isOpen, id, season, episode, title, type, backdrop, saveProgress, duration]);
 
     // Force loading spinner timeout
     useEffect(() => {

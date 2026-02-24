@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { authService } from '../services/authService';
-
+import { clearContinueWatching, getContinueWatching } from '../utils/continueWatching';
+import { clearList as clearMyList, getMyList } from '../utils/myList';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -18,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         });
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
@@ -40,6 +41,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logoutUser = async () => {
+        // Clear guest localStorage BEFORE signing out to prevent race conditions
+        // where onAuthStateChange fires and hooks read stale local data.
+        clearContinueWatching();
+        clearMyList();
+
         const { error } = await authService.logout();
         if (!error) {
             setUser(null);

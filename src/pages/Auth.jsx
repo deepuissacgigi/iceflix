@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Star, Calendar, Mail, Lock, UserIcon } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Star, Calendar, Mail, Lock, User, Film } from 'lucide-react';
 import ENDPOINTS from '../services/endpoints';
 import { getTrendingMovies, getMovieVideos } from '../services/tmdb';
 import ReactPlayer from 'react-player';
 
-const SLIDE_DURATION = 12000;
+const SLIDE_INTERVAL = 10000;
 
 const Auth = () => {
-    const [isLogin, setIsLogin] = useState(true);
+    const [mode, setMode] = useState('login'); // 'login' | 'signup'
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -18,90 +18,97 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const [slides, setSlides] = useState([]);
     const [activeSlide, setActiveSlide] = useState(0);
-    const [ready, setReady] = useState(false);
-    const [focusedField, setFocusedField] = useState(null);
-    const [videoReady, setVideoReady] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const [activeField, setActiveField] = useState(null);
+    const [trailerReady, setTrailerReady] = useState(false);
 
     const { signIn, signUp, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
 
+    // Mount animation
     useEffect(() => {
-        const t = setTimeout(() => setReady(true), 150);
+        const t = setTimeout(() => setMounted(true), 100);
         return () => clearTimeout(t);
     }, []);
 
-    // Fetch famous movies + trailers
+    // Fetch trending movies for the cinematic background
     useEffect(() => {
-        const fetchSlides = async () => {
+        const loadSlides = async () => {
             try {
                 const movies = await getTrendingMovies();
-                const famous = movies
-                    .filter(m => m.backdrop_path && m.vote_average > 6)
+                const top = movies
+                    .filter(m => m.backdrop_path && m.vote_average > 6.5)
                     .sort((a, b) => b.popularity - a.popularity)
-                    .slice(0, 5);
+                    .slice(0, 6);
 
-                const slidesData = await Promise.all(
-                    famous.map(async (movie) => {
+                const data = await Promise.all(
+                    top.map(async (movie) => {
                         let trailerKey = null;
                         try {
                             const videos = await getMovieVideos(movie.id);
-                            const trailer = videos.find(
-                                v => v.type === 'Trailer' && v.site === 'YouTube' && v.official
-                            ) || videos.find(
-                                v => v.type === 'Trailer' && v.site === 'YouTube'
-                            ) || videos.find(
-                                v => v.site === 'YouTube'
-                            );
+                            const trailer =
+                                videos.find(v => v.type === 'Trailer' && v.site === 'YouTube' && v.official) ||
+                                videos.find(v => v.type === 'Trailer' && v.site === 'YouTube') ||
+                                videos.find(v => v.site === 'YouTube');
                             if (trailer) trailerKey = trailer.key;
-                        } catch (e) { /* ignore */ }
+                        } catch { /* silent */ }
 
                         return {
                             id: movie.id,
                             title: movie.title || movie.name,
                             backdrop: `${ENDPOINTS.IMAGE_BASE_URL}${movie.backdrop_path}`,
-                            year: (movie.release_date || movie.first_air_date || '').substring(0, 4),
+                            year: (movie.release_date || '').substring(0, 4),
                             rating: movie.vote_average?.toFixed(1),
-                            overview: movie.overview?.substring(0, 140),
+                            overview: movie.overview?.substring(0, 160),
                             trailerKey,
                         };
                     })
                 );
-
-                setSlides(slidesData);
+                setSlides(data);
             } catch (err) {
-                console.error('Auth slides fetch error:', err);
+                console.error('Auth: failed to load slides', err);
             }
         };
-        fetchSlides();
+        loadSlides();
     }, []);
 
-    // Auto-cycle
+    // Auto-cycle slides
     useEffect(() => {
         if (slides.length <= 1) return;
-        const interval = setInterval(() => {
-            setVideoReady(false);
+        const timer = setInterval(() => {
+            setTrailerReady(false);
             setActiveSlide(prev => (prev + 1) % slides.length);
-        }, SLIDE_DURATION);
-        return () => clearInterval(interval);
+        }, SLIDE_INTERVAL);
+        return () => clearInterval(timer);
     }, [slides.length]);
 
+    // Form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
         try {
-            if (isLogin) {
+            if (mode === 'login') {
                 const { error } = await signIn(email, password);
                 if (error) throw error;
-                navigate('/profile');
             } else {
                 const { error } = await signUp(email, password, username);
                 if (error) throw error;
-                navigate('/profile');
             }
+            navigate('/profile');
+        } catch (err) {
+            setError(err.message || 'Authentication failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        try {
+            await loginWithGoogle();
         } catch (err) {
             setError(err.message);
-        } finally {
             setLoading(false);
         }
     };
@@ -109,54 +116,44 @@ const Auth = () => {
     const toggleMode = useCallback((e) => {
         e.preventDefault();
         setError('');
-        setIsLogin(prev => !prev);
+        setMode(prev => prev === 'login' ? 'signup' : 'login');
     }, []);
 
-    const currentSlide = slides[activeSlide];
-    const currentTrailer = currentSlide?.trailerKey;
+    const current = slides[activeSlide];
+    const trailerKey = current?.trailerKey;
+    const isLogin = mode === 'login';
 
     return (
-        <div className={`auth-split ${ready ? 'auth-split--ready' : ''}`}>
-
-            {/* ════════════ LEFT: CINEMATIC SHOWCASE ════════════ */}
-            <div className="auth-split__left">
-                <div className="auth-showcase">
-                    {/* Backdrop Images — always behind */}
+        <div className={`auth-page ${mounted ? 'auth-page--visible' : ''}`}>
+            {/* ═══════════ LEFT — CINEMATIC SHOWCASE ═══════════ */}
+            <div className="auth-page__cinema">
+                <div className="auth-cinema">
+                    {/* Backdrop Images */}
                     {slides.map((slide, i) => (
                         <div
                             key={slide.id}
-                            className={`auth-showcase__slide ${i === activeSlide ? 'auth-showcase__slide--active' : ''}`}
+                            className={`auth-cinema__slide ${i === activeSlide ? 'auth-cinema__slide--active' : ''}`}
                         >
                             <img src={slide.backdrop} alt={slide.title} loading={i === 0 ? 'eager' : 'lazy'} />
                         </div>
                     ))}
 
-                    {/* Video Layer — sits ON TOP of images, fades in when ready */}
-                    {currentTrailer && (
-                        <div className={`auth-showcase__video-layer ${videoReady ? 'auth-showcase__video-layer--visible' : ''}`}>
+                    {/* Trailer Layer */}
+                    {trailerKey && (
+                        <div className={`auth-cinema__trailer ${trailerReady ? 'auth-cinema__trailer--visible' : ''}`}>
                             <ReactPlayer
-                                key={currentTrailer}
-                                url={`https://www.youtube.com/watch?v=${currentTrailer}`}
-                                playing={true}
-                                muted={true}
-                                loop={true}
-                                width="100%"
-                                height="100%"
+                                key={trailerKey}
+                                url={`https://www.youtube.com/watch?v=${trailerKey}`}
+                                playing muted loop
+                                width="100%" height="100%"
                                 controls={false}
-                                onReady={() => setVideoReady(true)}
+                                onReady={() => setTrailerReady(true)}
                                 config={{
                                     youtube: {
                                         playerVars: {
-                                            autoplay: 1,
-                                            controls: 0,
-                                            showinfo: 0,
-                                            rel: 0,
-                                            modestbranding: 1,
-                                            iv_load_policy: 3,
-                                            disablekb: 1,
-                                            fs: 0,
-                                            playsinline: 1,
-                                            start: 15,
+                                            autoplay: 1, controls: 0, showinfo: 0, rel: 0,
+                                            modestbranding: 1, iv_load_policy: 3, disablekb: 1,
+                                            fs: 0, playsinline: 1, start: 15,
                                             origin: window.location.origin,
                                         },
                                     },
@@ -165,83 +162,70 @@ const Auth = () => {
                         </div>
                     )}
 
-                    {/* Overlays */}
-                    <div className="auth-showcase__overlay" />
-                    <div className="auth-showcase__edge" />
+                    {/* Gradient Overlays */}
+                    <div className="auth-cinema__gradient" />
+                    <div className="auth-cinema__edge" />
                 </div>
 
                 {/* Movie Info */}
-                {currentSlide && (
-                    <div className="auth-showcase__info" key={currentSlide.id}>
-                        <div className="auth-showcase__meta">
-                            {currentSlide.rating && (
-                                <span className="auth-showcase__badge">
-                                    <Star size={12} /> {currentSlide.rating}
+                {current && (
+                    <div className="auth-cinema__info" key={current.id}>
+                        <div className="auth-cinema__badges">
+                            {current.rating && (
+                                <span className="auth-cinema__badge">
+                                    <Star size={11} /> {current.rating}
                                 </span>
                             )}
-                            {currentSlide.year && (
-                                <span className="auth-showcase__badge">
-                                    <Calendar size={12} /> {currentSlide.year}
+                            {current.year && (
+                                <span className="auth-cinema__badge">
+                                    <Calendar size={11} /> {current.year}
                                 </span>
                             )}
-                            {currentTrailer && videoReady && (
-                                <span className="auth-showcase__badge auth-showcase__badge--live">
-                                    ● NOW PLAYING
+                            {trailerKey && trailerReady && (
+                                <span className="auth-cinema__badge auth-cinema__badge--live">
+                                    <Film size={11} /> NOW PLAYING
                                 </span>
                             )}
                         </div>
-                        <h2 className="auth-showcase__title">{currentSlide.title}</h2>
-                        <p className="auth-showcase__desc">{currentSlide.overview}</p>
+                        <h2 className="auth-cinema__title">{current.title}</h2>
+                        <p className="auth-cinema__overview">{current.overview}</p>
                     </div>
                 )}
 
-                {/* Indicators */}
+                {/* Slide Indicators */}
                 {slides.length > 1 && (
-                    <div className="auth-showcase__dots">
+                    <div className="auth-cinema__indicators">
                         {slides.map((_, i) => (
                             <button
                                 key={i}
-                                className={`auth-showcase__dot ${i === activeSlide ? 'auth-showcase__dot--active' : ''}`}
-                                onClick={() => {
-                                    setVideoReady(false);
-                                    setActiveSlide(i);
-                                }}
+                                aria-label={`Slide ${i + 1}`}
+                                className={`auth-cinema__dot ${i === activeSlide ? 'auth-cinema__dot--active' : ''}`}
+                                onClick={() => { setTrailerReady(false); setActiveSlide(i); }}
                             />
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* ════════════ RIGHT: PREMIUM FORM ════════════ */}
-            <div className="auth-split__right">
-                <div className="auth-form-panel">
+            {/* ═══════════ RIGHT — AUTH FORM ═══════════ */}
+            <div className="auth-page__form-side">
+                <div className="auth-card">
                     {/* Brand */}
-                    <Link to="/" className="auth-form-panel__brand">
-                        <span>ICE</span><span className="accent">FLIX</span>
+                    <Link to="/" className="auth-card__brand">
+                        <span>ICE</span><span className="auth-card__brand-accent">FLIX</span>
                     </Link>
 
                     {/* Heading */}
-                    <div className="auth-form-panel__header">
-                        <h1>{isLogin ? 'Welcome back' : 'Create account'}</h1>
-                        <p>{isLogin ? 'Sign in to continue watching' : 'Start your streaming journey'}</p>
+                    <div className="auth-card__header">
+                        <h1>{isLogin ? 'Welcome back' : 'Join the experience'}</h1>
+                        <p>{isLogin ? 'Sign in to continue your cinematic journey' : 'Create your free account and start streaming'}</p>
                     </div>
 
                     {/* Error */}
-                    {error && <div className="auth-form-panel__error">{error}</div>}
+                    {error && <div className="auth-card__error">{error}</div>}
 
-                    {/* Google First */}
-                    <button
-                        type="button"
-                        className="auth-btn-social"
-                        onClick={() => {
-                            setLoading(true);
-                            loginWithGoogle().catch(err => {
-                                setError(err.message);
-                                setLoading(false);
-                            });
-                        }}
-                        disabled={loading}
-                    >
+                    {/* Google OAuth */}
+                    <button type="button" className="auth-card__google" onClick={handleGoogleLogin} disabled={loading}>
                         <svg width="18" height="18" viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -252,86 +236,78 @@ const Auth = () => {
                     </button>
 
                     {/* Divider */}
-                    <div className="auth-form-panel__divider">
-                        <div /><span>or continue with email</span><div />
+                    <div className="auth-card__divider">
+                        <div className="auth-card__divider-line" />
+                        <span>or</span>
+                        <div className="auth-card__divider-line" />
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit} autoComplete="off" className="auth-form-panel__form">
+                    <form onSubmit={handleSubmit} autoComplete="off" className="auth-card__form">
+                        {/* Username (signup only) */}
                         {!isLogin && (
-                            <div className={`auth-field auth-field--delay-1 ${focusedField === 'username' ? 'auth-field--focused' : ''} ${username ? 'auth-field--filled' : ''}`}>
-                                <span className="auth-field__icon"><UserIcon size={16} /></span>
-                                <label htmlFor="auth-username">Username</label>
+                            <div className={`auth-input ${activeField === 'username' ? 'auth-input--active' : ''} ${username ? 'auth-input--has-value' : ''}`}>
+                                <User size={16} className="auth-input__icon" />
                                 <input
-                                    type="text"
-                                    id="auth-username"
+                                    type="text" id="auth-username"
                                     value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    onFocus={() => setFocusedField('username')}
-                                    onBlur={() => setFocusedField(null)}
-                                    required
-                                    autoComplete="off"
+                                    onChange={e => setUsername(e.target.value)}
+                                    onFocus={() => setActiveField('username')}
+                                    onBlur={() => setActiveField(null)}
+                                    required autoComplete="off"
                                 />
-                                <div className="auth-field__highlight" />
+                                <label htmlFor="auth-username">Username</label>
+                                <span className="auth-input__bar" />
                             </div>
                         )}
 
-                        <div className={`auth-field auth-field--delay-2 ${focusedField === 'email' ? 'auth-field--focused' : ''} ${email ? 'auth-field--filled' : ''}`}>
-                            <span className="auth-field__icon"><Mail size={16} /></span>
-                            <label htmlFor="auth-email">Email address</label>
+                        {/* Email */}
+                        <div className={`auth-input ${activeField === 'email' ? 'auth-input--active' : ''} ${email ? 'auth-input--has-value' : ''}`}>
+                            <Mail size={16} className="auth-input__icon" />
                             <input
-                                type="email"
-                                id="auth-email"
+                                type="email" id="auth-email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                onFocus={() => setFocusedField('email')}
-                                onBlur={() => setFocusedField(null)}
-                                required
-                                autoComplete="email"
-                                name="email"
+                                onChange={e => setEmail(e.target.value)}
+                                onFocus={() => setActiveField('email')}
+                                onBlur={() => setActiveField(null)}
+                                required autoComplete="email" name="email"
                             />
-                            <div className="auth-field__highlight" />
+                            <label htmlFor="auth-email">Email address</label>
+                            <span className="auth-input__bar" />
                         </div>
 
-                        <div className={`auth-field auth-field--delay-3 ${focusedField === 'password' ? 'auth-field--focused' : ''} ${password ? 'auth-field--filled' : ''}`}>
-                            <span className="auth-field__icon"><Lock size={16} /></span>
-                            <label htmlFor="auth-password">Password</label>
+                        {/* Password */}
+                        <div className={`auth-input ${activeField === 'password' ? 'auth-input--active' : ''} ${password ? 'auth-input--has-value' : ''}`}>
+                            <Lock size={16} className="auth-input__icon" />
                             <input
-                                type={showPassword ? 'text' : 'password'}
-                                id="auth-password"
+                                type={showPassword ? 'text' : 'password'} id="auth-password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                onFocus={() => setFocusedField('password')}
-                                onBlur={() => setFocusedField(null)}
-                                required
-                                autoComplete="current-password"
-                                name="password"
+                                onChange={e => setPassword(e.target.value)}
+                                onFocus={() => setActiveField('password')}
+                                onBlur={() => setActiveField(null)}
+                                required autoComplete="current-password" name="password"
                             />
-                            <div className="auth-field__highlight" />
-                            <button
-                                type="button"
-                                className="auth-field__eye"
-                                onClick={() => setShowPassword(!showPassword)}
-                                tabIndex={-1}
-                            >
+                            <label htmlFor="auth-password">Password</label>
+                            <span className="auth-input__bar" />
+                            <button type="button" className="auth-input__toggle" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                         </div>
 
+                        {/* Forgot Password */}
                         {isLogin && (
-                            <div className="auth-form-panel__forgot">
+                            <div className="auth-card__forgot">
                                 <a href="#">Forgot password?</a>
                             </div>
                         )}
 
                         {/* Submit */}
-                        <button type="submit" className="auth-btn-submit" disabled={loading}>
-                            <span className="auth-btn-submit__bg" />
+                        <button type="submit" className="auth-card__submit" disabled={loading}>
                             {loading ? (
                                 <Loader2 size={20} className="animate-spin" />
                             ) : (
                                 <>
-                                    <span>{isLogin ? 'Sign in' : 'Get started'}</span>
+                                    <span>{isLogin ? 'Sign in' : 'Create account'}</span>
                                     <ArrowRight size={18} />
                                 </>
                             )}
@@ -339,7 +315,7 @@ const Auth = () => {
                     </form>
 
                     {/* Toggle */}
-                    <p className="auth-form-panel__toggle">
+                    <p className="auth-card__switch">
                         {isLogin ? "Don't have an account?" : 'Already a member?'}
                         <a href="#" onClick={toggleMode}>
                             {isLogin ? 'Sign up free' : 'Sign in'}
@@ -348,8 +324,8 @@ const Auth = () => {
                     </p>
 
                     {/* Legal */}
-                    <p className="auth-form-panel__legal">
-                        Protected by reCAPTCHA. <a href="#">Privacy</a> · <a href="#">Terms</a>
+                    <p className="auth-card__legal">
+                        By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
                     </p>
                 </div>
             </div>
