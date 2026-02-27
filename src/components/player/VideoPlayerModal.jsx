@@ -8,8 +8,6 @@ import { Spinner } from '../loaders/Loaders';
 import { getMoviePlayers, getTVPlayers } from '../../utils/players';
 import { getMovieDetails, getTVDetails } from '../../services/tmdb';
 
-import { useAdblock } from '../../hooks/useAdblock';
-import { setAdsWarningSeen } from '../../utils/adblockStorage';
 import { useContinueWatching } from '../../hooks/useContinueWatching';
 
 // Duration for CSS exit animation (ms) — must match SCSS transition duration
@@ -112,11 +110,7 @@ const VideoPlayerModal = () => {
 
     const current = players[currentServer];
 
-    const [allowPopups, setAllowPopups] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
-
-    // Adblock Warning
-    const { showWarning, setShowWarning } = useAdblock();
 
     // Reset on open
     useEffect(() => {
@@ -184,32 +178,10 @@ const VideoPlayerModal = () => {
                 onMouseMove={handleMouseMove}
                 onClick={() => isMinimized && maximizePlayer()}
             >
-                {/* AdBlocker Warning Overlay */}
-                {showWarning && (
-                    <div className={`player-ad-warning ${showWarning ? 'player-ad-warning--visible' : ''}`}>
-                        <div className="player-ad-warning__card">
-                            <ShieldAlert size={48} className="player-ad-warning__icon" />
-                            <h3 className="player-ad-warning__title">Ad Blocker Recommended</h3>
-                            <p className="player-ad-warning__text">
-                                This video is provided by a 3rd party. You may encounter pop-ups or ads.
-                                We strongly recommend using an <strong>Ad Blocker</strong> for the best experience.
-                            </p>
-                            <button
-                                className="player-ad-warning__btn"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setAdsWarningSeen();
-                                    setShowWarning(false);
-                                }}
-                            >
-                                OK, I Understand
-                            </button>
-                        </div>
-                    </div>
-                )}
+
 
                 {/* Loading Spinner */}
-                {loading && !showWarning && (
+                {loading && (
                     <div className="loading-overlay">
                         <div className="spinner-container">
                             <Spinner size={isMinimized ? "sm" : "lg"} loading={loading} />
@@ -286,17 +258,6 @@ const VideoPlayerModal = () => {
                                                 </button>
                                             ))}
                                         </div>
-                                    </div>
-
-                                    <div className="menu-section">
-                                        <h4>Ad Blocking</h4>
-                                        <button
-                                            className={`adblock-toggle ${!allowPopups ? 'active' : ''}`}
-                                            onClick={() => setAllowPopups(!allowPopups)}
-                                        >
-                                            {!allowPopups ? <ShieldAlert size={16} /> : <ShieldCheck size={16} />}
-                                            <span>{!allowPopups ? 'Strict Mode (On)' : 'Standard Mode (Off)'}</span>
-                                        </button>
                                     </div>
                                 </div>
                             )}
