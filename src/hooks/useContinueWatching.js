@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { supabase } from '../lib/supabase';
 import {
     getContinueWatching,
@@ -12,6 +13,7 @@ const FINISHED_THRESHOLD = 0.90;
 
 export const useContinueWatching = () => {
     const { user, loading: authLoading } = useAuth();
+    const { addNotification } = useNotification();
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -100,6 +102,21 @@ export const useContinueWatching = () => {
         // Auto-remove when finished
         const pct = duration > 0 ? progress / duration : 0;
         if (pct >= FINISHED_THRESHOLD) {
+            const videoKey = `notif_fin_${item.id}_${item.mediaType}_${item.season || 0}_${item.episode || 0}`;
+            if (!sessionStorage.getItem(videoKey)) {
+                let msg = `Finished watching ${item.title || 'a video'}`;
+                if (item.mediaType === 'tv' && item.season && item.episode) {
+                    msg = `Finished S${item.season} E${item.episode} of ${item.title}`;
+                }
+                
+                addNotification(msg, 'success', {
+                    title: item.title || 'Completed',
+                    thumbnail: item.backdrop || item.poster ? `https://image.tmdb.org/t/p/w200${item.backdrop || item.poster}` : null,
+                });
+                
+                sessionStorage.setItem(videoKey, 'true');
+            }
+
             await removeItem(item.id, item.mediaType || 'movie');
             return;
         }
@@ -132,7 +149,15 @@ export const useContinueWatching = () => {
     }, [user]);
 
     // ── Remove ────────────────────────────────────────────
-    const removeItem = useCallback(async (id, mediaType) => {
+    const removeItem = useCallback(async (id, mediaType, isManual = false, itemObj = null) => {
+        if (isManual && itemObj) {
+            const title = itemObj.title || itemObj.name || 'a video';
+            addNotification(`Removed ${title} from Watch History`, 'info');
+        }
+
+        // Optimistically update the local state so the UI reacts instantly
+        setHistory(prev => prev.filter(i => !(i.id === id && i.mediaType === mediaType)));
+
         if (user) {
             // Logged In: Only remove from database
             try {

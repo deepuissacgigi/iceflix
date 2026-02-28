@@ -97,7 +97,7 @@ const Auth = () => {
                 const { error } = await signUp(email, password, username);
                 if (error) throw error;
             }
-            navigate('/profile');
+            navigate('/');
         } catch (err) {
             setError(err.message || 'Authentication failed. Please try again.');
         } finally {

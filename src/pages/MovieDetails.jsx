@@ -17,6 +17,8 @@ import StarRating from '../components/ui/StarRating';
 import UserScoreMeter from '../components/ui/UserScoreMeter';
 import PopularityMeter from '../components/ui/PopularityMeter';
 import useDocTitle from '../hooks/useDocTitle';
+import { useNotification } from '../context/NotificationContext';
+import { useContinueWatching } from '../hooks/useContinueWatching';
 
 const MovieDetails = () => {
     const { id } = useParams();
@@ -36,9 +38,11 @@ const MovieDetails = () => {
     const [selectedSeason, setSelectedSeason] = useState(1);
     const [selectedEpisode, setSelectedEpisode] = useState(1);
     const [isEpisodeMenuOpen, setIsEpisodeMenuOpen] = useState(false);
+    const [isSeasonMenuOpen, setIsSeasonMenuOpen] = useState(false);
     const [episodes, setEpisodes] = useState([]);
     const [loadingEpisodes, setLoadingEpisodes] = useState(false);
 
+    const { addNotification } = useNotification();
     const { playMovie, playTV } = useApp();
     const { isInMyList, toggleMyList } = useMyList();
 
@@ -105,6 +109,23 @@ const MovieDetails = () => {
         return () => clearInterval(interval);
     }, [item, images]);
 
+    const { history } = useContinueWatching();
+    const hasInitializedRef = React.useRef(false);
+
+    // ── TV Playback Memory Initialization ──
+    // When the item finishes loading, check if it exists in history
+    useEffect(() => {
+        if (!isTV || !item?.id || !history || hasInitializedRef.current) return;
+
+        const pastWatch = history.find(h => h.id === item.id && h.mediaType === 'tv');
+        if (pastWatch && pastWatch.season && pastWatch.episode) {
+            setSelectedSeason(pastWatch.season);
+            // We do NOT set episode here yet, because the episode list for that season hasn't loaded
+            // We set it inside the fetchEpisodes block below to ensure it exists
+        }
+        hasInitializedRef.current = true;
+    }, [isTV, item?.id, history]);
+
     // Fetch episodes for TV shows
     useEffect(() => {
         if (!isTV || !id || !item) return;
@@ -113,7 +134,15 @@ const MovieDetails = () => {
             try {
                 const seasonData = await getSeasonDetails(id, selectedSeason);
                 setEpisodes(seasonData.episodes || []);
-                setSelectedEpisode(1);
+
+                // If we are auto-resuming from history, pick the exact episode.
+                // Otherwise, default to episode 1 of the selected season.
+                const pastWatch = history.find(h => h.id === item.id && h.mediaType === 'tv');
+                if (pastWatch && pastWatch.season === selectedSeason && pastWatch.episode) {
+                    setSelectedEpisode(pastWatch.episode);
+                } else {
+                    setSelectedEpisode(1);
+                }
             } catch (error) {
                 console.error('Error fetching episodes:', error);
                 setEpisodes([]);
@@ -122,7 +151,7 @@ const MovieDetails = () => {
             }
         };
         fetchEpisodes();
-    }, [isTV, id, selectedSeason, item]);
+    }, [isTV, id, selectedSeason, item, history]);
 
     if (!item) return <DetailsSkeleton />;
 
@@ -241,18 +270,35 @@ const MovieDetails = () => {
 
                         {/* TV: Season & Episode Selectors */}
                         {isTV && (
-                            <>
+                            <div className="detail__selectors-group">
                                 <div className="detail__select-wrap">
-                                    <select
-                                        value={selectedSeason}
-                                        onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                                        className="detail__select"
+                                    {isSeasonMenuOpen && (
+                                        <div className="detail__episode-backdrop" onClick={() => setIsSeasonMenuOpen(false)} />
+                                    )}
+                                    <button
+                                        className={`detail__select-trigger ${isSeasonMenuOpen ? 'detail__select-trigger--active' : ''}`}
+                                        onClick={() => setIsSeasonMenuOpen(!isSeasonMenuOpen)}
                                     >
-                                        {Array.from({ length: item.number_of_seasons || 1 }, (_, i) => i + 1).map(s => (
-                                            <option key={s} value={s}>Season {s}</option>
-                                        ))}
-                                    </select>
-                                    <ChevronDown size={16} className="detail__select-icon" />
+                                        <span className="detail__select-text">Season {selectedSeason}</span>
+                                        <ChevronDown size={16} className={`detail__select-icon ${isSeasonMenuOpen ? 'detail__select-icon--open' : ''}`} />
+                                    </button>
+
+                                    {isSeasonMenuOpen && (
+                                        <div className="detail__select-dropdown">
+                                            {Array.from({ length: item.number_of_seasons || 1 }, (_, i) => i + 1).map(s => (
+                                                <div
+                                                    key={s}
+                                                    className={`detail__select-item ${selectedSeason === s ? 'detail__select-item--active' : ''}`}
+                                                    onClick={() => {
+                                                        setSelectedSeason(s);
+                                                        setIsSeasonMenuOpen(false);
+                                                    }}
+                                                >
+                                                    Season {s}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="detail__episode-wrap">
@@ -260,7 +306,7 @@ const MovieDetails = () => {
                                         <div className="detail__episode-backdrop" onClick={() => setIsEpisodeMenuOpen(false)} />
                                     )}
                                     <button
-                                        className="detail__episode-trigger"
+                                        className={`detail__episode-trigger ${isEpisodeMenuOpen ? 'detail__episode-trigger--active' : ''}`}
                                         onClick={() => !loadingEpisodes && episodes.length > 0 && setIsEpisodeMenuOpen(!isEpisodeMenuOpen)}
                                         disabled={loadingEpisodes}
                                     >
@@ -310,7 +356,7 @@ const MovieDetails = () => {
                                         </div>
                                     )}
                                 </div>
-                            </>
+                            </div>
                         )}
                     </div>
                 </div>

@@ -1,0 +1,267 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// ═══════════════════════════════════════════════════
+//  CONTINUE WATCHING — Apple TV+ Inspired Design
+// ═══════════════════════════════════════════════════
+
+// ── Dedicated Scroll Container ──
+// Separate from generic .row-scroll which forces portrait card widths
+.cw-scroll {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 2rem var(--container-padding-mobile);
+    margin-top: -2rem;
+    margin-bottom: -2rem;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    &:active {
+        cursor: grabbing;
+        scroll-behavior: auto;
+    }
+
+    @include desktop {
+        padding-left: var(--container-padding-desktop);
+        padding-right: var(--container-padding-desktop);
+        gap: 1.5rem;
+    }
+
+    &::after {
+        content: '';
+        min-width: var(--container-padding-mobile);
+
+        @include desktop {
+            min-width: var(--container-padding-desktop);
+        }
+    }
+}
+
+.cw-item {
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(min(var(--item-index, 0), 15) * 0.04s);
+}
+
+.row-section--visible .cw-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+// ── Card ──
+.continue-watching-card {
+    position: relative;
+    width: 320px;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #111;
+    isolation: isolate;
+
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.5s ease;
+    will-change: transform, box-shadow;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow:
+            0 16px 48px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(143, 0, 255, 0.3);
+        border-color: rgba(143, 0, 255, 0.2);
+
+        .cw-img {
+            transform: scale(1.05);
+            filter: brightness(0.45) saturate(1.2);
+        }
+
+        .cw-play {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .cw-close {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .cw-bottom {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 40%, transparent 100%);
+        }
+
+        .cw-bar-track {
+            height: 4px;
+        }
+
+        .cw-bar-fill::after {
+            opacity: 1;
+        }
+    }
+
+    // ── Image ──
+    .cw-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        z-index: 1;
+        filter: brightness(0.7);
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+            filter 0.4s ease;
+        will-change: transform;
+    }
+
+    // ── Centered Play Button ──
+    .cw-play {
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.6);
+        z-index: 12;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(143, 0, 255, 0.8);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 24px rgba(143, 0, 255, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease,
+            transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        svg {
+            color: white;
+            margin-left: 2px;
+        }
+    }
+
+    // ── Close / Remove ──
+    .cw-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 20;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        opacity: 0;
+        transform: scale(0.7);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        &:hover {
+            background: rgba(229, 9, 20, 0.85);
+            color: white;
+            transform: scale(1.15) !important;
+            border-color: rgba(229, 9, 20, 0.5);
+        }
+
+        &:active {
+            transform: scale(0.9) !important;
+        }
+    }
+
+    // ── Bottom Strip (smooth gradient only) ──
+    .cw-bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 15;
+        padding: 20px 14px 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+        transition: background 0.5s ease;
+    }
+
+    .cw-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+        letter-spacing: 0.01em;
+    }
+
+    .cw-subtitle {
+        font-size: 0.72rem;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .dot {
+            display: inline-block;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .cw-pct {
+            color: rgba(161, 51, 255, 0.9);
+            font-weight: 500;
+        }
+    }
+
+    // ── Edge-to-Edge Progress Bar ──
+    .cw-bar-track {
+        width: calc(100% + 28px);
+        margin-left: -14px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cw-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #7b00e0, #a133ff, #c77dff);
+        border-radius: 0 2px 0 0;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: -1px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #c77dff;
+            box-shadow: 0 0 8px rgba(143, 0, 255, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+    }
+}

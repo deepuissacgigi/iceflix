@@ -6,22 +6,19 @@ const STORAGE_KEY = 'ott_notifications';
 const MAX_NOTIFICATIONS = 50;
 
 export const NotificationProvider = ({ children }) => {
-    const [notifications, setNotifications] = useState([]);
-    const [unreadCount, setUnreadCount] = useState(0);
-
-    // Load from local storage on mount
-    useEffect(() => {
+    // 1. Initialize synchronously to prevent the wipe-on-mount bug
+    const [notifications, setNotifications] = useState(() => {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                setNotifications(parsed);
-                setUnreadCount(parsed.filter(n => !n.read).length);
-            }
-        } catch (e) {
-            console.error('Failed to load notifications:', e);
+            return raw ? JSON.parse(raw) : [];
+        } catch {
+            return [];
         }
-    }, []);
+    });
+
+    const [unreadCount, setUnreadCount] = useState(() => {
+        return notifications.filter(n => !n.read).length;
+    });
 
     // Save to local storage whenever notifications change
     useEffect(() => {

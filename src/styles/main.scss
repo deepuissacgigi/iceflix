@@ -20,6 +20,7 @@
 @use 'components/loaders';
 @use 'components/modals';
 @use 'components/player'; // New Modern Player Styles
+@use 'components/continueWatching'; // Pure CSS Continue Watching Card
 
 // 4. Pages
 @use 'pages/home';

@@ -15,7 +15,7 @@ import {
 } from '../services/tmdb';
 import { HomeSkeleton } from '../components/loaders/Loaders';
 import { useContinueWatching } from '../hooks/useContinueWatching';
-import ContinueWatchingCard from '../components/cards/ContinueWatchingCard';
+import ContinueWatchingRow from '../components/layout/ContinueWatchingRow';
 import useDocTitle from '../hooks/useDocTitle';
 const Home = () => {
     useDocTitle('Home');
@@ -119,25 +119,15 @@ const Home = () => {
         <div className="home-page">
             <Hero />
             <div className="home-page__rows">
-                {/* Continue Watching Section */}
                 {history.length > 0 && (
-                    <Row
-                        title="Continue Watching"
+                    <ContinueWatchingRow
                         items={history}
-                        CardComponent={ContinueWatchingCard}
                         onRemove={(id) => {
-                            // Find item to get mediaType if needed, but the card usually passes ID.
-                            // The Row component might need to pass the whole item or we find it.
-                            // onRemove in Row usually passes the ID.
-                            // We need mediaType to remove correctly from DB.
                             const item = history.find(i => i.id === id);
-                            if (item) {
-                                removeHistoryItem(item.id, item.mediaType);
-                            }
+                            if (item) removeHistoryItem(item.id, item.mediaType, true, item);
                         }}
                     />
                 )}
-
 
 
                 <Row title="Trending Worldwide" items={data.trending} />

@@ -105,25 +105,26 @@
         }
     }
 
-    // Controls Overlay
+    // Controls Overlay — thin top bar only, NEVER covers the bottom of the iframe
+    // so the provider's seek bar is always fully accessible
     .player-controls {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 100%;
+        height: auto; // Only as tall as its content — NOT full screen
         display: flex;
-        flex-direction: column;
+        align-items: flex-start;
         justify-content: space-between;
         pointer-events: none;
+        z-index: 5;
         transition: opacity 0.4s ease-out;
 
-        // Custom Gradient Overlay
+        // Top-only gradient for our custom player controls
         background: linear-gradient(to bottom,
                 rgba(0, 0, 0, 0.8) 0%,
-                rgba(0, 0, 0, 0) 20%,
-                rgba(0, 0, 0, 0) 80%,
-                rgba(0, 0, 0, 0.9) 100%);
+                rgba(0, 0, 0, 0) 100%);
+        padding-bottom: 2rem; // Extra fade space
 
         &.visible {
             opacity: 1;
@@ -131,7 +132,7 @@
 
         &.hidden {
             opacity: 0;
-            cursor: none;
+            pointer-events: none;
         }
 
         // Top Bar
@@ -142,18 +143,6 @@
             align-items: center;
             gap: 1.5rem;
             pointer-events: auto;
-        }
-
-        .controls-left {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .controls-right {
-            position: absolute;
-            top: 0;
-            right: 0;
         }
 
         // Server Status Indicator

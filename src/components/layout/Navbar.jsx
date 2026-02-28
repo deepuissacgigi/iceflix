@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, User, X, Trash2, Play, Plus, Minus, LogIn, LogOut, Info } from 'lucide-react';
+import { Search, Bell, User, X, Trash2, Play, Plus, Minus, LogIn, LogOut, Info, Clock, ChevronDown } from 'lucide-react';
 import useDebounce from '../../hooks/useDebounce';
 import { useAuth } from '../../context/AuthContext';
 import { searchMulti } from '../../services/tmdb';
@@ -54,9 +54,11 @@ const Navbar = () => {
     const notifRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, logoutUser } = useAuth();
     const { notifications, unreadCount, markAllAsRead, clearAll } = useNotification();
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const profileRef = useRef(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -93,6 +95,19 @@ const Navbar = () => {
         }
         return () => document.removeEventListener('mousedown', handleClickOutsideNotif);
     }, [isNotifOpen]);
+
+    // Click Outside to Close Profile Dropdown
+    useEffect(() => {
+        const handleClickOutsideProfile = (event) => {
+            if (profileRef.current && !profileRef.current.contains(event.target)) {
+                setIsProfileOpen(false);
+            }
+        };
+        if (isProfileOpen) {
+            document.addEventListener('mousedown', handleClickOutsideProfile);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutsideProfile);
+    }, [isProfileOpen]);
 
     // Fetch Results on Debounce
     useEffect(() => {
@@ -279,23 +294,59 @@ const Navbar = () => {
                 </div>
 
                 {user ? (
-                    <Link to="/profile" className="profile-icon">
-                        {user.user_metadata?.avatar_url ? (
-                            <img
-                                src={user.user_metadata.avatar_url}
-                                alt="User"
-                                style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    border: '2px solid #e50914'
-                                }}
-                            />
-                        ) : (
-                            <User />
+                    <div className="pdm-wrapper" ref={profileRef}>
+                        <button className="pdm-trigger" onClick={() => setIsProfileOpen(!isProfileOpen)}>
+                            {user.user_metadata?.avatar_url ? (
+                                <img src={user.user_metadata.avatar_url} alt="User" className="pdm-avatar" />
+                            ) : (
+                                <div className="pdm-avatar-fallback"><User size={16} /></div>
+                            )}
+                            <ChevronDown size={12} className={`pdm-chevron ${isProfileOpen ? 'pdm-chevron--open' : ''}`} />
+                        </button>
+
+                        {isProfileOpen && (
+                            <div className="pdm-panel">
+                                <div className="pdm-header">
+                                    {user.user_metadata?.avatar_url ? (
+                                        <img src={user.user_metadata.avatar_url} alt="" className="pdm-header-pic" />
+                                    ) : (
+                                        <div className="pdm-header-pic-fallback"><User size={20} /></div>
+                                    )}
+                                    <div className="pdm-header-info">
+                                        <span className="pdm-name">{user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}</span>
+                                        <span className="pdm-email">{user.email}</span>
+                                    </div>
+                                </div>
+                                <div className="pdm-sep" />
+                                <div className="pdm-menu">
+                                    <div className="pdm-btn" onClick={() => { navigate('/profile'); setIsProfileOpen(false); }}>
+                                        <div className="pdm-icon"><User size={16} /></div>
+                                        <div className="pdm-label">
+                                            <span>Account</span>
+                                            <small>Profile & settings</small>
+                                        </div>
+                                    </div>
+                                    <div className="pdm-btn" onClick={() => { navigate('/profile'); setIsProfileOpen(false); }}>
+                                        <div className="pdm-icon"><Clock size={16} /></div>
+                                        <div className="pdm-label">
+                                            <span>Watch History</span>
+                                            <small>Recently watched</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="pdm-sep" />
+                                <div className="pdm-menu">
+                                    <div className="pdm-btn pdm-btn--red" onClick={() => { logoutUser(); setIsProfileOpen(false); }}>
+                                        <div className="pdm-icon pdm-icon--red"><LogOut size={16} /></div>
+                                        <div className="pdm-label">
+                                            <span>Logout</span>
+                                            <small>Sign out of your account</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         )}
-                    </Link>
+                    </div>
                 ) : (
                     <Link to="/auth" className="navbar__signin">
                         Sign In

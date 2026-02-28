@@ -2,9 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
  * Custom hook to manage player controls visibility and keyboard shortcuts.
+ * 
+ * Controls behavior:
+ * - Show controls immediately on ANY mouse movement or keyboard press
+ * - Auto-hide after 20 seconds of complete inactivity
+ * - Always apply the same logic regardless of minimized/maximized state
  */
 export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMaximize) => {
-    const [showControls, setShowControls] = useState(false);
+    const [showControls, setShowControls] = useState(true);
     const controlsTimeout = useRef(null);
 
     const clearControlsTimeout = () => {
@@ -14,11 +19,28 @@ export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMa
         }
     };
 
-    // 1. Keyboard Shortcuts
+    // Start the auto-hide countdown (20 seconds)
+    const startAutoHide = useCallback(() => {
+        clearControlsTimeout();
+        controlsTimeout.current = setTimeout(() => {
+            setShowControls(false);
+        }, 20000); // 20 seconds
+    }, []);
+
+    // Show controls and restart the hide timer
+    const revealControls = useCallback(() => {
+        setShowControls(true);
+        startAutoHide();
+    }, [startAutoHide]);
+
+    // 1. Keyboard Shortcuts + Activity Detection
     useEffect(() => {
         if (!isOpen) return;
 
         const handleKeyDown = (e) => {
+            // Always reveal controls on any key press
+            revealControls();
+
             if (e.key === 'Escape') {
                 e.preventDefault();
                 onClose();
@@ -27,58 +49,36 @@ export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMa
                 e.preventDefault();
                 isMinimized ? onMaximize() : onMinimize();
             }
-            if (e.code === 'Space') {
-                // Ideally, we'd toggle play/pause here, but cannot control iframe directly.
-                // We'll leave it as a TODO or implement a custom overlay play/pause logic.
-            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, isMinimized, onClose, onMinimize, onMaximize]);
+    }, [isOpen, isMinimized, onClose, onMinimize, onMaximize, revealControls]);
 
-    // 2. Mouse Visibility Logic
-    const handleMouseEnter = useCallback(() => {
-        setShowControls(true);
-        clearControlsTimeout();
-    }, []);
-
-    const handleMouseLeave = useCallback(() => {
-        // If maximized, controls shouldn't instantly vanish when mouse leaves window bounds
-        if (isMinimized) {
-            setShowControls(false);
-            clearControlsTimeout();
-        }
-    }, [isMinimized]);
-
+    // 2. Mouse Move Handler
     const handleMouseMove = useCallback(() => {
-        setShowControls(true);
-        clearControlsTimeout();
+        revealControls();
+    }, [revealControls]);
 
-        // Only set the auto-hide timeout if the player is maximized (fullscreen)
-        if (!isMinimized) {
-            controlsTimeout.current = setTimeout(() => {
-                setShowControls(false);
-            }, 3000); // Hide after 3 seconds of inactivity
-        } else {
-            // If windowed, moving mouse inside should always show controls 
-            // without a timeout forcing them to hide.
+    // 3. Start auto-hide on mount when player is open
+    useEffect(() => {
+        if (isOpen) {
             setShowControls(true);
+            startAutoHide();
         }
-    }, [isMinimized]);
+    }, [isOpen, startAutoHide]);
 
     // Clean up timeout on unmount or when modal closes
     useEffect(() => {
         if (!isOpen) {
             clearControlsTimeout();
+            setShowControls(true); // Reset for next open
         }
         return clearControlsTimeout;
     }, [isOpen]);
 
     return {
         showControls,
-        handleMouseMove,
-        handleMouseEnter,
-        handleMouseLeave
+        handleMouseMove
     };
 };

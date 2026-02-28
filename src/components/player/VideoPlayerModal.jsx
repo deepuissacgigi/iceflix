@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Minimize2, Maximize2, ShieldCheck, ShieldAlert, Settings, Activity } from 'lucide-react';
+import { X, Minimize2, Maximize2, Settings, Activity } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { usePlayerControls } from '../../hooks/usePlayerControls';
 import { useWatchProgress } from '../../hooks/useWatchProgress';
-import { Spinner } from '../loaders/Loaders';
+import { useNotification } from '../../context/NotificationContext';
 
 import { getMoviePlayers, getTVPlayers } from '../../utils/players';
 import { getMovieDetails, getTVDetails } from '../../services/tmdb';
@@ -26,6 +26,7 @@ const VideoPlayerModal = () => {
     );
 
     const { saveProgress } = useContinueWatching();
+    const { addNotification } = useNotification();
 
     // ── Animation lifecycle ──
     // shouldRender keeps the DOM alive during exit animation
@@ -99,9 +100,16 @@ const VideoPlayerModal = () => {
         duration,
     }, saveProgress);
 
-    // Player State
-    const [currentServer, setCurrentServer] = useState(0);
-    const [loading, setLoading] = useState(true);
+    // Player State — remember last used server
+    const [currentServer, setCurrentServer] = useState(() => {
+        const saved = localStorage.getItem('preferredServer');
+        return saved ? parseInt(saved, 10) : 0;
+    });
+
+    const switchServer = useCallback((index) => {
+        setCurrentServer(index);
+        localStorage.setItem('preferredServer', index.toString());
+    }, []);
 
     // Get Players based on Type
     const players = type === 'tv'
@@ -111,12 +119,24 @@ const VideoPlayerModal = () => {
     const current = players[currentServer];
 
     const [showSettings, setShowSettings] = useState(false);
+    const [showAdAlert, setShowAdAlert] = useState(false);
 
-    // Reset on open
+    // Show ad warning alert once per session
     useEffect(() => {
         if (isOpen && id) {
-            setLoading(true);
-            setCurrentServer(0);
+            const dismissed = sessionStorage.getItem('adWarningDismissed');
+            if (!dismissed) {
+                setShowAdAlert(true);
+            }
+        }
+    }, [isOpen, id]);
+
+    // Reset on open and Trigger Activity Notification
+    useEffect(() => {
+        if (isOpen && id) {
+            // Restore last used server from localStorage
+            const saved = localStorage.getItem('preferredServer');
+            setCurrentServer(saved ? parseInt(saved, 10) : 0);
 
             // Direct save to Continue Watching via unified hook
             saveProgress({
@@ -128,17 +148,27 @@ const VideoPlayerModal = () => {
                 season,
                 episode,
             }, 1, duration || 0);
+
+            // Record Activity Notification (with a quick dedupe using sessionStorage)
+            const videoKey = `notif_fired_${id}_${type}_${season || 0}_${episode || 0}`;
+            if (!sessionStorage.getItem(videoKey)) {
+                let msg = `Started watching ${title || 'a video'}`;
+                if (type === 'tv' && season && episode) {
+                    msg = `Watching S${season} E${episode} of ${title}`;
+                }
+
+                addNotification(msg, 'play', {
+                    title: title || 'Now Playing',
+                    thumbnail: backdrop ? `https://image.tmdb.org/t/p/w200${backdrop}` : null,
+                });
+
+                // Prevent spamming the exact same notification if the user minimizes/maximizes rapidly
+                sessionStorage.setItem(videoKey, 'true');
+            }
         }
     }, [isOpen, id, season, episode, title, type, backdrop, saveProgress, duration]);
 
-    // Force loading spinner timeout
-    useEffect(() => {
-        let timer;
-        if (loading) {
-            timer = setTimeout(() => setLoading(false), 5000);
-        }
-        return () => clearTimeout(timer);
-    }, [loading]);
+
 
     // Close settings on outside click
     useEffect(() => {
@@ -179,12 +209,68 @@ const VideoPlayerModal = () => {
                 onClick={() => isMinimized && maximizePlayer()}
             >
 
-
-                {/* Loading Spinner */}
-                {loading && (
-                    <div className="loading-overlay">
-                        <div className="spinner-container">
-                            <Spinner size={isMinimized ? "sm" : "lg"} loading={loading} />
+                {/* In-Player Alert Box */}
+                {showAdAlert && !isMinimized && (
+                    <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                        backdropFilter: 'blur(8px)',
+                        zIndex: 100,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        animation: 'fadeIn 0.3s ease-out'
+                    }}>
+                        <div style={{
+                            background: '#1a1a1a',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '16px',
+                            padding: '32px',
+                            maxWidth: '400px',
+                            width: '90%',
+                            textAlign: 'center',
+                            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '16px'
+                        }}>
+                            <div style={{
+                                background: 'rgba(255, 173, 31, 0.15)',
+                                color: '#ffad1f',
+                                padding: '12px',
+                                borderRadius: '50%'
+                            }}>
+                                <Activity size={32} />
+                            </div>
+                            <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: 0 }}>Ad Warning</h3>
+                            <p style={{ color: '#a0a0a0', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                                Ads may appear from streaming providers. We strongly recommend using a reputable <strong>adblocker</strong> for an uninterrupted experience.
+                            </p>
+                            <button
+                                style={{
+                                    marginTop: '8px',
+                                    background: '#ffad1f',
+                                    color: '#000',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '12px 24px',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    width: '100%',
+                                    transition: 'all 0.2s ease'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onClick={() => {
+                                    setShowAdAlert(false);
+                                    sessionStorage.setItem('adWarningDismissed', 'true');
+                                }}
+                            >
+                                Got it
+                            </button>
                         </div>
                     </div>
                 )}
@@ -200,13 +286,12 @@ const VideoPlayerModal = () => {
                         allowFullScreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="origin"
-                        onLoad={() => setLoading(false)}
                         className={isMinimized ? 'pointer-disabled' : ''}
                     />
                 </div>
 
                 {/* Controls Overlay */}
-                <div className={`player-controls ${showControls && !loading ? 'visible' : 'hidden'}`}>
+                <div className={`player-controls ${showControls ? 'visible' : 'hidden'}`}>
                     {/* Left Controls */}
                     <div className="controls-left">
                         <button
@@ -252,7 +337,7 @@ const VideoPlayerModal = () => {
                                                 <button
                                                     key={i}
                                                     className={`server-btn ${i === currentServer ? 'active' : ''}`}
-                                                    onClick={() => setCurrentServer(i)}
+                                                    onClick={() => switchServer(i)}
                                                 >
                                                     {p.name}
                                                 </button>

@@ -5,7 +5,7 @@
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: $z-navbar;
+    z-index: 100000; // Must be above the player modal (99999) and backdrop (99998)
     padding: 1.5rem var(--container-padding-mobile); // Taller initial padding
     display: flex;
     align-items: center;
@@ -579,14 +579,15 @@
                 }
 
                 .notif-body {
-                    max-height: 420px;
+                    max-height: 380px;
                     overflow-y: auto;
 
                     // Custom Scrollbar
                     scrollbar-width: thin;
+                    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 
                     &::-webkit-scrollbar {
-                        width: 3px;
+                        width: 4px;
                     }
 
                     &::-webkit-scrollbar-track {
@@ -594,8 +595,12 @@
                     }
 
                     &::-webkit-scrollbar-thumb {
-                        background: rgba($primary, 0.3);
-                        border-radius: 3px;
+                        background: rgba(255, 255, 255, 0.2);
+                        border-radius: 4px;
+
+                        &:hover {
+                            background: rgba(255, 255, 255, 0.3);
+                        }
                     }
 
                     .notif-empty {
@@ -652,7 +657,6 @@
                             width: 48px;
                             height: 48px;
                             border-radius: 10px;
-                            overflow: hidden;
                             background: rgba(255, 255, 255, 0.05);
 
                             img {
@@ -806,7 +810,6 @@
     }
 }
 
-// Keyframes for Logo Animation
 @keyframes logo-shimmer {
     0% {
         background-position: 0% 50%;
@@ -818,5 +821,284 @@
 
     100% {
         background-position: 0% 50%;
+    }
+}
+
+// ═══════════════════════════════════════════════════
+//  PROFILE DROPDOWN MENU (pdm-*)
+// ═══════════════════════════════════════════════════
+
+.pdm-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pdm-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px 3px 3px;
+    background: none;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+}
+
+.pdm-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(143, 0, 255, 0.7);
+}
+
+.pdm-avatar-fallback {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(143, 0, 255, 0.15);
+    color: #a855f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdm-chevron {
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.25s ease;
+
+    &--open {
+        transform: rotate(180deg);
+        color: #a855f7;
+    }
+}
+
+// ── The Panel ──
+.pdm-panel {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    width: 280px;
+    background: rgba(18, 18, 20, 0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 10000;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    animation: pdmFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform-origin: top right;
+
+    // Violet top accent
+    &::before {
+        content: '';
+        display: block;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #a855f7, #7c3aed, transparent);
+    }
+}
+
+// ── Header ──
+.pdm-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 20px 16px;
+    background: linear-gradient(180deg, rgba(143, 0, 255, 0.08), transparent);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.pdm-header-pic {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(143, 0, 255, 0.6);
+    flex-shrink: 0;
+}
+
+.pdm-header-pic-fallback {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(143, 0, 255, 0.15);
+    color: #a855f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pdm-header-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.pdm-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.01em;
+}
+
+.pdm-email {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// ── Separator ──
+.pdm-sep {
+    height: 1px;
+    margin: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+// ── Menu ──
+.pdm-menu {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+// ── Menu Buttons ──
+.pdm-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 10px 12px;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    .pdm-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.5);
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .pdm-label {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+        align-items: flex-start;
+        justify-content: center;
+
+        span {
+            display: block;
+            width: 100%;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.2s ease;
+        }
+
+        small {
+            display: block;
+            width: 100%;
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.2s ease;
+        }
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.06);
+
+        .pdm-icon {
+            background: rgba(143, 0, 255, 0.15);
+            color: #a855f7;
+            transform: scale(1.05);
+        }
+
+        .pdm-label span {
+            color: #fff;
+        }
+
+        .pdm-label small {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    // ── Logout Variant ──
+    &--red {
+        .pdm-icon--red {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        &:hover {
+            background: rgba(239, 68, 68, 0.08);
+
+            .pdm-icon--red {
+                background: rgba(239, 68, 68, 0.15);
+                color: #f87171;
+            }
+
+            .pdm-label span {
+                color: #f87171;
+            }
+
+            .pdm-label small {
+                color: rgba(239, 68, 68, 0.6);
+            }
+        }
+    }
+}
+
+@keyframes pdmFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }
