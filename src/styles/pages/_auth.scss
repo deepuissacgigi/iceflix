@@ -276,6 +276,16 @@
             pointer-events: none;
         }
     }
+
+    @include ultrawide {
+        flex: 0 0 540px;
+        padding: 3.5rem 4rem;
+    }
+
+    @include tv {
+        flex: 0 0 640px;
+        padding: 4rem 5rem;
+    }
 }
 
 //  ═══════════════════════════════════════

@@ -11,6 +11,16 @@
         padding: 2rem 3rem;
     }
 
+    @include ultrawide {
+        max-width: $ultrawide;
+        padding: 2rem 4rem;
+    }
+
+    @include tv {
+        max-width: none;
+        padding: 2rem 6rem;
+    }
+
     &__input-container {
         margin-bottom: 2rem;
         position: relative;
@@ -66,6 +76,19 @@
         @include desktop {
             grid-template-columns: repeat(5, 1fr);
             gap: 1.5rem;
+        }
+
+        @include wide {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        @include ultrawide {
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        @include tv {
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2rem;
         }
     }
 

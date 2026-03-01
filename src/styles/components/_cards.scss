@@ -89,6 +89,10 @@
         @include desktop {
             font-size: 1.1rem;
         }
+
+        @include tv {
+            font-size: 1.3rem;
+        }
     }
 
     &:hover &__title {

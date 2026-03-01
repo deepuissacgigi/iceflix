@@ -43,15 +43,22 @@
         grid-template-columns: repeat(3, 1fr);
     }
 
-    // Reduced to 4 columns for bigger tiles on desktop
     @include desktop {
         grid-template-columns: repeat(4, 1fr);
         gap: 2rem;
     }
 
-    // 5 columns only on very wide screens
-    @media (min-width: 1600px) {
+    @include wide {
         grid-template-columns: repeat(5, 1fr);
+    }
+
+    @include ultrawide {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    @include tv {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2.5rem;
     }
 }
 
@@ -62,11 +69,27 @@
         padding: 2rem 3rem;
     }
 
+    @include ultrawide {
+        padding: 2.5rem 4rem;
+    }
+
+    @include tv {
+        padding: 3rem 6rem;
+    }
+
     h2 {
         font-size: 1.5rem;
         margin-bottom: 1.5rem;
         font-weight: 600;
         transition: color 0.3s;
+
+        @include wide {
+            font-size: 1.7rem;
+        }
+
+        @include tv {
+            font-size: 2rem;
+        }
 
         &:hover {
             color: $primary;

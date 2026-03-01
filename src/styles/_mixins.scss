@@ -27,6 +27,13 @@
     box-shadow: 0 0 10px rgba($color, 0.7), 0 0 20px rgba($color, 0.5);
 }
 
+// ── Breakpoint Mixins ──
+@mixin small-mobile {
+    @media (max-width: #{$small-mobile}) {
+        @content;
+    }
+}
+
 @mixin mobile {
     @media (max-width: #{$tablet}) {
         @content;
@@ -41,6 +48,24 @@
 
 @mixin desktop {
     @media (min-width: #{$desktop}) {
+        @content;
+    }
+}
+
+@mixin wide {
+    @media (min-width: #{$wide}) {
+        @content;
+    }
+}
+
+@mixin ultrawide {
+    @media (min-width: #{$ultrawide}) {
+        @content;
+    }
+}
+
+@mixin tv {
+    @media (min-width: #{$tv}) {
         @content;
     }
 }

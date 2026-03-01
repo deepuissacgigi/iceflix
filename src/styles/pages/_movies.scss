@@ -84,6 +84,19 @@
         padding: 0 var(--container-padding-desktop) 6rem;
     }
 
+    @include wide {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    @include ultrawide {
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    @include tv {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 2.5rem;
+    }
+
     .movie-card {
         width: 100%;
     }
