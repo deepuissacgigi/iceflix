@@ -7,6 +7,7 @@ import StarRating from '../ui/StarRating';
 import UserScoreMeter from '../ui/UserScoreMeter';
 import PopularityMeter from '../ui/PopularityMeter';
 import ENDPOINTS from '../../services/endpoints';
+import ProgressiveHeroImage from '../ui/ProgressiveHeroImage';
 import { getTrending, getTrendingMovies, getTrendingTV } from '../../services/tmdb';
 import useMyList from '../../hooks/useMyList';
 
@@ -88,13 +89,11 @@ const Hero = ({ contentType = 'all' }) => {
                     transition={{ duration: 1.5, ease: "easeInOut" }}
                     style={{ position: 'absolute', inset: 0 }}
                 >
-                    {/* Background Image - High Res */}
+                    {/* Background Image - Progressive 4K */}
                     <div className="hero__bg">
-                        <img
-                            src={`${ENDPOINTS.IMAGE_BASE_URL}${movie.backdrop_path}`}
+                        <ProgressiveHeroImage
+                            path={movie.backdrop_path}
                             alt={movie.title || movie.name}
-                            loading="eager"
-                            decoding="async"
                         />
                         <div className="overlay-gradient" />
                     </div>

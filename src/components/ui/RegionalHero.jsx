@@ -3,6 +3,7 @@ import { Play, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ENDPOINTS from '../../services/endpoints';
 import { useApp } from '../../context/AppContext';
+import ProgressiveHeroImage from '../ui/ProgressiveHeroImage';
 
 const RegionalHero = ({ item }) => {
     const navigate = useNavigate();
@@ -27,10 +28,10 @@ const RegionalHero = ({ item }) => {
     return (
         <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden shadow-2xl group flex flex-col justify-end">
             <div className="absolute inset-0 z-0">
-                <img
-                    src={bannerUrl}
+                <ProgressiveHeroImage
+                    path={item.backdrop_path}
                     alt={item.title || item.name}
-                    className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-700"
+                    className="transform scale-105 group-hover:scale-100 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
