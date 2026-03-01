@@ -55,10 +55,19 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logoutUser } = useAuth();
-    const { notifications, unreadCount, markAllAsRead, clearAll } = useNotification();
+    const { notifications, unreadCount, markAllAsRead, clearAll, welcomePopupActive, dismissWelcomePopup } = useNotification();
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileRef = useRef(null);
+
+    // Auto-open notification dropdown on login welcome
+    useEffect(() => {
+        if (welcomePopupActive) {
+            setIsNotifOpen(true);
+        } else {
+            setIsNotifOpen(false);
+        }
+    }, [welcomePopupActive]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -87,6 +96,7 @@ const Navbar = () => {
         const handleClickOutsideNotif = (event) => {
             if (notifRef.current && !notifRef.current.contains(event.target)) {
                 setIsNotifOpen(false);
+                dismissWelcomePopup();
             }
         };
 
@@ -231,7 +241,9 @@ const Navbar = () => {
                     <button
                         className="relative"
                         onClick={() => {
+                            const willClose = isNotifOpen;
                             setIsNotifOpen(!isNotifOpen);
+                            if (willClose) dismissWelcomePopup();
                             if (!isNotifOpen && unreadCount > 0) markAllAsRead();
                         }}
                     >

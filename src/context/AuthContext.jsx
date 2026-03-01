@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { addNotification } = useNotification();
+    const { addNotification, triggerWelcomePopup } = useNotification();
 
     useEffect(() => {
         // Initial Session Check
@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
                     title: 'Signed In',
                     subtitle: session?.user?.email || '',
                 });
+                triggerWelcomePopup();
             } else if (event === 'SIGNED_OUT') {
                 addNotification('You have been signed out', 'info', {
                     title: 'Session Ended',

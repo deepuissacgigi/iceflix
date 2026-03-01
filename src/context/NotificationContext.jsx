@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const NotificationContext = createContext();
 
@@ -61,6 +61,23 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
 
+    // Welcome popup — auto-opens the notification dropdown for 5s after login
+    const [welcomePopupActive, setWelcomePopupActive] = useState(false);
+    const welcomeTimerRef = useRef(null);
+
+    const triggerWelcomePopup = useCallback(() => {
+        setWelcomePopupActive(true);
+        if (welcomeTimerRef.current) clearTimeout(welcomeTimerRef.current);
+        welcomeTimerRef.current = setTimeout(() => {
+            setWelcomePopupActive(false);
+        }, 5000);
+    }, []);
+
+    const dismissWelcomePopup = useCallback(() => {
+        setWelcomePopupActive(false);
+        if (welcomeTimerRef.current) clearTimeout(welcomeTimerRef.current);
+    }, []);
+
     return (
         <NotificationContext.Provider value={{
             notifications,
@@ -68,7 +85,10 @@ export const NotificationProvider = ({ children }) => {
             addNotification,
             markAllAsRead,
             clearAll,
-            removeNotification
+            removeNotification,
+            welcomePopupActive,
+            triggerWelcomePopup,
+            dismissWelcomePopup
         }}>
             {children}
         </NotificationContext.Provider>
