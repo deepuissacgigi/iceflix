@@ -9,7 +9,7 @@ export const authService = {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/profile` // Redirect back to profile or home
+                redirectTo: `${window.location.origin}/` // Redirect back to home
             }
         });
         return { data, error };
