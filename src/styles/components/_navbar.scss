@@ -105,12 +105,8 @@
             font-size: 1.8rem;
         }
 
-        @include ultrawide {
-            font-size: 2rem;
-        }
-
         @include tv {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
         }
     }
 

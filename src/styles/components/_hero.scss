@@ -138,16 +138,12 @@
             font-size: 5rem;
         }
 
-        @include wide {
-            font-size: 5.5rem;
-        }
-
         @include ultrawide {
-            font-size: 6.5rem;
+            font-size: 6rem;
         }
 
         @include tv {
-            font-size: 8rem;
+            font-size: 7rem;
         }
     }
 

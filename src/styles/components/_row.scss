@@ -207,15 +207,11 @@
         width: 260px;
     }
 
-    @include wide {
-        width: 280px;
-    }
-
     @include ultrawide {
-        width: 320px;
+        width: 300px;
     }
 
     @include tv {
-        width: 380px;
+        width: 360px;
     }
 }

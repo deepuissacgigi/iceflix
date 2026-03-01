@@ -32,19 +32,11 @@
 }
 
 // ── Responsive Scaling for Large Screens ──
-@media (min-width: 1280px) {
+@media (min-width: 1600px) {
     :root {
         --container-padding-desktop: 5rem;
         --card-gap: 1.75rem;
         --row-vertical-spacing: 3.5rem;
-    }
-}
-
-@media (min-width: 1600px) {
-    :root {
-        --container-padding-desktop: 6rem;
-        --card-gap: 2rem;
-        --row-vertical-spacing: 4rem;
     }
 }
 
