@@ -195,11 +195,27 @@
     // Each card delays slightly based on its index (capped at 15 for perf)
     transition-delay: calc(min(var(--item-index, 0), 15) * 0.04s);
 
+    @include small-mobile {
+        width: 130px;
+    }
+
     @include tablet {
         width: 220px;
     }
 
     @include desktop {
         width: 260px;
+    }
+
+    @include wide {
+        width: 280px;
+    }
+
+    @include ultrawide {
+        width: 320px;
+    }
+
+    @include tv {
+        width: 380px;
     }
 }

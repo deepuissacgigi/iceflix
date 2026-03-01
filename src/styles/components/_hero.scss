@@ -13,6 +13,10 @@
         height: 90vh;
     }
 
+    @include tv {
+        height: 95vh;
+    }
+
     // Indicators (Dots)
     &__indicators {
         position: absolute;
@@ -92,6 +96,10 @@
     // Pull content rows up to overlap the faded bottom portion of the hero
     margin-bottom: -120px;
 
+    @include small-mobile {
+        margin-bottom: -60px;
+    }
+
     &__content {
         position: absolute;
         top: 35%;
@@ -104,6 +112,14 @@
             left: var(--container-padding-desktop);
             top: 40%;
         }
+
+        @include ultrawide {
+            max-width: 1000px;
+        }
+
+        @include tv {
+            max-width: 1200px;
+        }
     }
 
     &__title {
@@ -114,8 +130,24 @@
         color: white;
         filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 
+        @include small-mobile {
+            font-size: 2rem;
+        }
+
         @include desktop {
             font-size: 5rem;
+        }
+
+        @include wide {
+            font-size: 5.5rem;
+        }
+
+        @include ultrawide {
+            font-size: 6.5rem;
+        }
+
+        @include tv {
+            font-size: 8rem;
         }
     }
 
@@ -181,16 +213,35 @@
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 3;
-        line-clamp: 3; // Standard property
+        line-clamp: 3;
         -webkit-box-orient: vertical;
+
+        @include small-mobile {
+            font-size: 0.85rem;
+            max-width: 280px;
+        }
 
         @include desktop {
             font-size: 1.2rem;
+        }
+
+        @include ultrawide {
+            font-size: 1.4rem;
+            max-width: 800px;
+        }
+
+        @include tv {
+            font-size: 1.6rem;
+            max-width: 1000px;
         }
     }
 
     &__actions {
         display: flex;
         gap: 1rem;
+
+        @include tv {
+            gap: 1.5rem;
+        }
     }
 }

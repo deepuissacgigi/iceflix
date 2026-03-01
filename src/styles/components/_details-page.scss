@@ -21,6 +21,10 @@
         @include desktop {
             height: 95vh;
         }
+
+        @include tv {
+            height: 100vh;
+        }
     }
 
     &__backdrop-wrap {
@@ -90,13 +94,21 @@
         left: var(--container-padding-mobile);
         right: var(--container-padding-mobile);
         max-width: 700px;
-        z-index: 30; // Elevated to ensure custom dropdowns overlay the content below
+        z-index: 30;
         animation: detail-slide-up 0.8s ease-out;
 
         @include desktop {
             left: var(--container-padding-desktop);
             bottom: 15%;
             max-width: 800px;
+        }
+
+        @include ultrawide {
+            max-width: 1000px;
+        }
+
+        @include tv {
+            max-width: 1200px;
         }
     }
 
@@ -126,8 +138,20 @@
         margin: 0 0 1rem;
         letter-spacing: -1px;
 
+        @include small-mobile {
+            font-size: 1.8rem;
+        }
+
         @include desktop {
             font-size: 4rem;
+        }
+
+        @include ultrawide {
+            font-size: 5rem;
+        }
+
+        @include tv {
+            font-size: 6rem;
         }
     }
 
