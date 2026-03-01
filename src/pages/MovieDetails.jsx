@@ -19,6 +19,7 @@ import PopularityMeter from '../components/ui/PopularityMeter';
 import useDocTitle from '../hooks/useDocTitle';
 import { useNotification } from '../context/NotificationContext';
 import { useContinueWatching } from '../hooks/useContinueWatching';
+import ProgressiveHeroImage from '../components/ui/ProgressiveHeroImage';
 
 const MovieDetails = () => {
     const { id } = useParams();
@@ -185,10 +186,9 @@ const MovieDetails = () => {
             {/* ═══════════ 1. CINEMATIC HERO ═══════════ */}
             <section className="detail__hero">
                 <div className="detail__backdrop-wrap">
-                    <img
+                    <ProgressiveHeroImage
                         key={safeIndex}
-                        className="detail__backdrop"
-                        src={currentBackdropUrl}
+                        path={uniqueBackgroundImages[safeIndex]}
                         alt={title}
                     />
                 </div>

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Star, Calendar, Mail, Lock, User, Film } from 'lucide-react';
 import ENDPOINTS from '../services/endpoints';
 import { getTrendingMovies, getMovieVideos } from '../services/tmdb';
+import ProgressiveHeroImage from '../components/ui/ProgressiveHeroImage';
 const ReactPlayer = React.lazy(() => import('react-player'));
 import useDocTitle from '../hooks/useDocTitle';
 
@@ -58,7 +59,7 @@ const Auth = () => {
                         return {
                             id: movie.id,
                             title: movie.title || movie.name,
-                            backdrop: `${ENDPOINTS.IMAGE_BASE_URL}${movie.backdrop_path}`,
+                            backdrop: movie.backdrop_path,
                             year: (movie.release_date || '').substring(0, 4),
                             rating: movie.vote_average?.toFixed(1),
                             overview: movie.overview?.substring(0, 160),
@@ -136,7 +137,10 @@ const Auth = () => {
                             key={slide.id}
                             className={`auth-cinema__slide ${i === activeSlide ? 'auth-cinema__slide--active' : ''}`}
                         >
-                            <img src={slide.backdrop} alt={slide.title} loading={i === 0 ? 'eager' : 'lazy'} />
+                            <ProgressiveHeroImage
+                                path={slide.backdrop}
+                                alt={slide.title}
+                            />
                         </div>
                     ))}
 

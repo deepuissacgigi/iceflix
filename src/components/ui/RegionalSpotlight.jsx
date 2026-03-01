@@ -4,6 +4,7 @@ import { Play, Info } from 'lucide-react';
 import ENDPOINTS from '../../services/endpoints';
 import Button from '../ui/Button';
 import { useApp } from '../../context/AppContext';
+import ProgressiveHeroImage from '../ui/ProgressiveHeroImage';
 
 const RegionalSpotlight = ({ item }) => {
     const navigate = useNavigate();
@@ -17,8 +18,8 @@ const RegionalSpotlight = ({ item }) => {
         <div className="regional-spotlight">
             {/* Background Layer */}
             <div className="regional-spotlight__bg">
-                <img
-                    src={bannerUrl}
+                <ProgressiveHeroImage
+                    path={item.backdrop_path}
                     alt={item.title || item.name}
                 />
             </div>
