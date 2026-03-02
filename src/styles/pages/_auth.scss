@@ -358,14 +358,14 @@
     position: absolute;
     left: 1rem;
     color: rgba(255, 255, 255, 0.3);
-    z-index: 1;
+    z-index: 10;
     transition: color 0.3s;
     pointer-events: none;
 }
 
 .auth__field input {
     width: 100%;
-    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    padding: 1.25rem 1rem 0.5rem 2.75rem; // Room for floating label
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
@@ -375,29 +375,50 @@
     font-weight: 500;
     outline: none;
     transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 5;
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.3);
-        font-weight: 400;
+        color: transparent; // Hide actual placeholder for floating hack
+    }
+
+    // Float label when focused OR has value (placeholder not shown because it's a space ' ')
+    &:focus,
+    &:not(:placeholder-shown) {
+        border-color: rgba(143, 0, 255, 0.5);
+        background: rgba(143, 0, 255, 0.05);
+
+        &~label {
+            transform: translateY(-1.1rem) scale(0.75); // Moved up slightly more
+            color: rgba(255, 255, 255, 0.6);
+        }
     }
 
     &:focus {
-        border-color: rgba(143, 0, 255, 0.5);
-        background: rgba(143, 0, 255, 0.05);
         box-shadow:
             0 0 0 3px rgba(143, 0, 255, 0.1),
             0 0 20px rgba(143, 0, 255, 0.08);
 
-        &~.auth__field-icon,
-        &+.auth__field-icon {
+        &~label {
+            color: rgba(143, 0, 255, 0.9);
+        }
+
+        &~.auth__field-icon {
             color: rgba(143, 0, 255, 0.8);
         }
     }
 }
 
-// Let the sibling selector work for icon on focus
-.auth__field:focus-within .auth__field-icon {
-    color: rgba(143, 0, 255, 0.8);
+.auth__field label {
+    position: absolute;
+    left: 2.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: left top;
+    z-index: 6;
 }
 
 .auth__field-toggle {
@@ -438,8 +459,9 @@
     padding: 0.9rem;
     border-radius: 14px;
     border: none;
-    background: linear-gradient(135deg, #8f00ff 0%, #6b00cc 50%, #8f00ff 100%);
-    background-size: 200% 100%;
+    background: linear-gradient(135deg, #8f00ff 0%, #6b00cc 50%, #b829ff 100%);
+    background-size: 200% auto;
+    animation: gradientShine 3s linear infinite; // Continuous shimmer
     color: white;
     font-size: 0.95rem;
     font-weight: 700;
@@ -458,17 +480,16 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+        background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
         transform: translateX(-100%);
         transition: transform 0.6s ease;
     }
 
     &:hover {
-        background-position: 100% 0;
         transform: translateY(-2px);
         box-shadow:
-            0 12px 40px rgba(143, 0, 255, 0.35),
-            0 0 20px rgba(143, 0, 255, 0.2);
+            0 12px 40px rgba(143, 0, 255, 0.45),
+            0 0 30px rgba(143, 0, 255, 0.3);
 
         &::before {
             transform: translateX(100%);
@@ -484,6 +505,17 @@
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
+        animation: none; // Stop shimmer on disabled
+    }
+}
+
+@keyframes gradientShine {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: -200% center;
     }
 }
 
