@@ -25,10 +25,10 @@
     --gradient-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.4), transparent);
 
     // LAYOUT SYSTEM (Professional Spacing)
-    --container-padding-mobile: 1.5rem; // 24px
+    --container-padding-mobile: 1rem;
     --container-padding-desktop: 4rem; // 64px - Broad professional margins
-    --card-gap: 1.5rem;
-    --row-vertical-spacing: 3rem;
+    --card-gap: 1.25rem;
+    --row-vertical-spacing: 2.5rem;
 }
 
 // ── Responsive Scaling for Large Screens ──
@@ -50,9 +50,9 @@
 
 @media (max-width: 380px) {
     :root {
-        --container-padding-mobile: 1rem;
-        --card-gap: 1rem;
-        --row-vertical-spacing: 2rem;
+        --container-padding-mobile: 0.75rem;
+        --card-gap: 0.75rem;
+        --row-vertical-spacing: 1.5rem;
     }
 }
 

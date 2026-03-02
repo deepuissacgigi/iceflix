@@ -28,6 +28,11 @@ body {
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
+
+    // Safe-area insets for notched devices
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 // Exceptions for Search/Inputs
