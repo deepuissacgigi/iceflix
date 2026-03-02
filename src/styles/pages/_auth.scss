@@ -2,766 +2,538 @@
 @use '../mixins' as *;
 
 // ═══════════════════════════════════════════════════════════
-//  AUTH PAGE — World-Class Cinematic Login Experience
-//  Split Layout: Left (Cinema) + Right (Form)
+//  AUTH PAGE — Modern Glassmorphic Login
 // ═══════════════════════════════════════════════════════════
 
 // ── Page Shell ──
-.auth-page {
+.auth {
     position: fixed;
     inset: 0;
     z-index: 200;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     font-family: $font-family;
     color: white;
-    background: #050508;
     overflow: hidden;
     opacity: 0;
-    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.8s ease;
 
     &--visible {
         opacity: 1;
     }
-
-    @include desktop {
-        flex-direction: row;
-    }
 }
 
-//  ═══════════════════════════════════════
-//  LEFT — CINEMATIC SHOWCASE
-//  ═══════════════════════════════════════
+// ═══════════════════════════════════════
+//  FULL-BLEED CINEMATIC BACKGROUND
+// ═══════════════════════════════════════
 
-.auth-page__cinema {
-    position: relative;
-    flex: 1;
-    min-height: 30vh;
-    overflow: hidden;
-
-    @include desktop {
-        min-height: auto;
-        flex: 1.2;
-    }
-}
-
-.auth-cinema {
+.auth__bg {
     position: absolute;
     inset: 0;
+    z-index: 0;
+}
 
-    // ── Image Slides ──
-    &__slide {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transform: scale(1.03);
-        transition: opacity 1.8s ease-in-out, transform 12s ease-out;
-        z-index: 1;
+.auth__bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.05);
+    transition: opacity 2s ease-in-out, transform 14s ease-out;
+    filter: brightness(0.5) saturate(1.3);
 
-        &--active {
-            opacity: 1;
-            transform: scale(1.08);
-        }
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.75) saturate(1.25) contrast(1.05);
-        }
-    }
-
-    // ── Trailer Video Layer ──
-    &__trailer {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        opacity: 0;
-        transition: opacity 1.6s ease-in-out;
-        overflow: hidden;
-
-        &--visible {
-            opacity: 1;
-        }
-
-        >div {
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 200vw !important;
-            height: 200vh !important;
-            min-width: 100%;
-            min-height: 100%;
-
-            iframe {
-                width: 100% !important;
-                height: 100% !important;
-                pointer-events: none;
-            }
-        }
-    }
-
-    // ── Gradient overlays ──
-    &__gradient {
-        position: absolute;
-        inset: 0;
-        z-index: 3;
-        background:
-            // Primary accent glow
-            radial-gradient(ellipse at 20% 60%, color-mix(in srgb, var(--primary), transparent 85%) 0%, transparent 50%),
-            // Bottom heavy fade
-            linear-gradient(0deg, #050508 0%, rgba(5, 5, 8, 0.7) 25%, rgba(5, 5, 8, 0.1) 50%, transparent 70%),
-            // Top vignette
-            linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, transparent 25%);
-    }
-
-    // ── Right edge bleed into form ──
-    &__edge {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 160px;
-        height: 100%;
-        z-index: 4;
-        background: linear-gradient(90deg, transparent, #050508);
-        pointer-events: none;
-        display: none;
-
-        @include desktop {
-            display: block;
-        }
-    }
-
-    // ── Movie Info ──
-    &__info {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 5;
-        padding: 2rem;
-        animation: auth-info-enter 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
-
-        @include desktop {
-            padding: 2.5rem 3.5rem 3rem;
-            right: 160px;
-        }
-    }
-
-    &__badges {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 0.6rem;
-        flex-wrap: wrap;
-    }
-
-    &__badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(12px);
-        color: rgba(255, 255, 255, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-
-        &--live {
-            background: rgba($primary, 0.15);
-            border-color: rgba($primary, 0.3);
-            color: $primary;
-            animation: auth-live-pulse 2.5s infinite;
-        }
-    }
-
-    &__title {
-        font-size: 1.6rem;
-        font-weight: 800;
-        margin: 0 0 0.35rem;
-        letter-spacing: -0.5px;
-        line-height: 1.15;
-        text-shadow: 0 2px 30px rgba(0, 0, 0, 0.7);
-
-        @include desktop {
-            font-size: 2.5rem;
-        }
-    }
-
-    &__overview {
-        font-size: 0.8rem;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.35);
-        margin: 0;
-        max-width: 480px;
-        display: none;
-
-        @include desktop {
-            display: block;
-        }
-    }
-
-    // ── Indicators ──
-    &__indicators {
-        position: absolute;
-        z-index: 10;
-        display: none;
-
-        @include desktop {
-            display: flex;
-            left: 3.5rem;
-            bottom: 3rem;
-            gap: 8px;
-        }
-    }
-
-    &__dot {
-        width: 28px;
-        height: 3px;
-        border: none;
-        border-radius: 3px;
-        background: rgba(255, 255, 255, 0.12);
-        cursor: pointer;
-        padding: 0;
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &--active {
-            width: 52px;
-            background: $primary;
-            box-shadow: 0 0 18px color-mix(in srgb, var(--primary), transparent 35%);
-        }
-
-        &:hover:not(&--active) {
-            background: rgba(255, 255, 255, 0.3);
-        }
+    &--active {
+        opacity: 1;
+        transform: scale(1.12);
     }
 }
 
-//  ═══════════════════════════════════════
-//  RIGHT — FORM PANEL
-//  ═══════════════════════════════════════
+.auth__bg-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        radial-gradient(ellipse at 30% 50%, rgba(143, 0, 255, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(0, 100, 255, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+}
 
-.auth-page__form-side {
+.auth__bg-noise {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+// ═══════════════════════════════════════
+//  ANIMATED GRADIENT ORBS
+// ═══════════════════════════════════════
+
+.auth__orbs {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.auth__orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+
+    &--1 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(143, 0, 255, 0.6) 0%, transparent 70%);
+        top: -10%;
+        right: -5%;
+        animation: orbFloat1 12s ease-in-out infinite;
+    }
+
+    &--2 {
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(0, 120, 255, 0.5) 0%, transparent 70%);
+        bottom: -5%;
+        left: -10%;
+        animation: orbFloat2 15s ease-in-out infinite;
+    }
+
+    &--3 {
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255, 0, 128, 0.4) 0%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        animation: orbFloat3 18s ease-in-out infinite;
+    }
+}
+
+@keyframes orbFloat1 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(-40px, 60px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(30px, -30px) scale(0.95);
+    }
+}
+
+@keyframes orbFloat2 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(50px, -40px) scale(1.15);
+    }
+
+    66% {
+        transform: translate(-20px, 30px) scale(0.9);
+    }
+}
+
+@keyframes orbFloat3 {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.5;
+    }
+}
+
+// ═══════════════════════════════════════
+//  GLASS FORM CARD
+// ═══════════════════════════════════════
+
+.auth__card-wrap {
     position: relative;
     z-index: 10;
+    width: 100%;
+    max-width: 440px;
+    padding: 1rem;
+
+    @include small-mobile {
+        padding: 0.75rem;
+    }
+}
+
+.auth__card {
+    background: rgba(10, 10, 20, 0.55);
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+        0 0 60px rgba(143, 0, 255, 0.08);
+
+    @include small-mobile {
+        padding: 2rem 1.25rem;
+        border-radius: 20px;
+    }
+
+    @include tablet {
+        padding: 3rem 2.5rem;
+    }
+}
+
+// ── Brand Logo ──
+.auth__brand {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1.5rem;
-    background: rgba(5, 5, 8, 0.97);
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
-    overflow-y: auto;
+    gap: 2px;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
 
-    @include desktop {
-        flex: 0 0 480px;
-        padding: 3rem 3.5rem;
-        border-top: none;
-        border-left: 1px solid rgba(255, 255, 255, 0.03);
+.auth__brand-ice {
+    color: #fff;
+}
 
-        // Left edge glow bleed 
-        &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -120px;
-            width: 120px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(5, 5, 8, 0.9));
-            z-index: 5;
-            pointer-events: none;
-        }
-    }
+.auth__brand-flix {
+    background: linear-gradient(135deg, #8f00ff, #c850c0, #4158D0);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(143, 0, 255, 0.4));
+}
 
-    @include ultrawide {
-        flex: 0 0 540px;
-        padding: 3.5rem 4rem;
-    }
+// ── Header ──
+.auth__header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
 
-    @include tv {
-        flex: 0 0 640px;
-        padding: 4rem 5rem;
+.auth__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.3px;
+
+    @include tablet {
+        font-size: 1.75rem;
     }
 }
 
-//  ═══════════════════════════════════════
-//  AUTH CARD — The form container
-//  ═══════════════════════════════════════
-
-.auth-card {
-    width: 100%;
-    max-width: 380px;
-
-    // ── Brand ──
-    &__brand {
-        display: inline-block;
-        text-decoration: none;
-        font-size: 1.7rem;
-        font-weight: 900;
-        letter-spacing: -2px;
-        color: white;
-        margin-bottom: 2.5rem;
-        transition: opacity 0.3s;
-
-        &:hover {
-            opacity: 0.8;
-        }
-
-        &-accent {
-            color: $primary;
-        }
-
-        @include desktop {
-            font-size: 2rem;
-        }
-    }
-
-    // ── Header ──
-    &__header {
-        margin-bottom: 2rem;
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0 0 0.4rem;
-            letter-spacing: -0.3px;
-            line-height: 1.2;
-            background: linear-gradient(135deg, white 0%, rgba(255, 255, 255, 0.8) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-
-            @include desktop {
-                font-size: 1.85rem;
-            }
-        }
-
-        p {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.3);
-            margin: 0;
-            line-height: 1.5;
-        }
-    }
-
-    // ── Error ──
-    &__error {
-        background: rgba(239, 68, 68, 0.06);
-        border: 1px solid rgba(239, 68, 68, 0.15);
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        font-size: 0.82rem;
-        color: #fca5a5;
-        animation: auth-shake 0.5s ease;
-    }
-
-    // ── Google Button ──
-    &__google {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 13px;
-        border-radius: 12px;
-        border: 1.5px solid rgba(255, 255, 255, 0.07);
-        background: rgba(255, 255, 255, 0.025);
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.88rem;
-        font-weight: 500;
-        font-family: $font-family;
-        cursor: pointer;
-        transition: all 0.35s ease;
-
-        &:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.065);
-            border-color: rgba(255, 255, 255, 0.15);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-        }
-
-        &:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        &:disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
-        }
-    }
-
-    // ── Divider ──
-    &__divider {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin: 1.5rem 0;
-
-        &-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
-        }
-
-        span {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.18);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-    }
-
-    // ── Form ──
-    &__form {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-    }
-
-    // ── Forgot ──
-    &__forgot {
-        text-align: right;
-        margin: 2px 0 10px;
-
-        a {
-            font-size: 0.76rem;
-            color: rgba(255, 255, 255, 0.2);
-            text-decoration: none;
-            transition: color 0.25s;
-
-            &:hover {
-                color: $primary;
-            }
-        }
-    }
-
-    // ── Submit Button ──
-    &__submit {
-        position: relative;
-        width: 100%;
-        padding: 14px;
-        margin-top: 8px;
-        border: none;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-        color: white;
-        font-size: 0.95rem;
-        font-weight: 600;
-        font-family: $font-family;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: all 0.35s ease;
-        overflow: hidden;
-
-        // Shimmer sweep
-        &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(105deg,
-                    transparent 30%,
-                    rgba(255, 255, 255, 0.1) 42%,
-                    rgba(255, 255, 255, 0.2) 50%,
-                    rgba(255, 255, 255, 0.1) 58%,
-                    transparent 70%);
-            transition: left 0.8s ease;
-        }
-
-        &:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow:
-                0 14px 40px color-mix(in srgb, var(--primary), transparent 40%),
-                0 4px 15px rgba(0, 0, 0, 0.3);
-
-            &::after {
-                left: 100%;
-            }
-        }
-
-        &:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 4px 15px color-mix(in srgb, var(--primary), transparent 60%);
-        }
-
-        &:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
-    }
-
-    // ── Switch Toggle ──
-    &__switch {
-        text-align: center;
-        font-size: 0.82rem;
-        color: rgba(255, 255, 255, 0.25);
-        margin: 2rem 0 0;
-
-        a {
-            color: $primary;
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 4px;
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-            transition: all 0.25s;
-
-            &:hover {
-                gap: 6px;
-                filter: brightness(1.2);
-            }
-        }
-    }
-
-    // ── Legal ──
-    &__legal {
-        text-align: center;
-        font-size: 0.63rem;
-        color: rgba(255, 255, 255, 0.1);
-        margin: 1.5rem 0 0;
-        line-height: 1.5;
-
-        a {
-            color: rgba(255, 255, 255, 0.18);
-            text-decoration: underline;
-            text-underline-offset: 2px;
-
-            &:hover {
-                color: rgba(255, 255, 255, 0.45);
-            }
-        }
-    }
+.auth__subtitle {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 400;
+    line-height: 1.4;
 }
 
-//  ═══════════════════════════════════════
-//  AUTH INPUT — Animated Floating Label
-//  ═══════════════════════════════════════
-
-.auth-input {
-    position: relative;
-    margin-bottom: 14px;
-    animation: auth-field-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
-
-    &:nth-child(1) {
-        animation-delay: 0.05s;
-    }
-
-    &:nth-child(2) {
-        animation-delay: 0.12s;
-    }
-
-    &:nth-child(3) {
-        animation-delay: 0.19s;
-    }
-
-    // Icon
-    &__icon {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.12);
-        z-index: 3;
-        transition: color 0.35s;
-        pointer-events: none;
-    }
-
-    // Floating label
-    label {
-        position: absolute;
-        left: 42px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.88rem;
-        color: rgba(255, 255, 255, 0.25);
-        pointer-events: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: left center;
-        z-index: 2;
-    }
-
-    // Input
-    input {
-        width: 100%;
-        padding: 22px 44px 8px 42px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1.5px solid rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        color: white;
-        font-size: 0.92rem;
-        font-family: $font-family;
-        outline: none;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1;
-
-        // Chrome autofill override
-        &:-webkit-autofill,
-        &:-webkit-autofill:hover,
-        &:-webkit-autofill:focus {
-            -webkit-box-shadow: 0 0 0 30px #050508 inset !important;
-            -webkit-text-fill-color: white !important;
-            transition: background-color 5000s ease-in-out 0s;
-            border-radius: 12px;
-        }
-    }
-
-    // Animated highlight bar
-    &__bar {
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-        border-radius: 0 0 12px 12px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 3;
-        box-shadow: 0 0 14px color-mix(in srgb, var(--primary), transparent 50%);
-    }
-
-    // Eye toggle
-    &__toggle {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.12);
-        cursor: pointer;
-        padding: 5px;
-        border-radius: 6px;
-        z-index: 4;
-        display: flex;
-        align-items: center;
-        transition: all 0.25s;
-
-        &:hover {
-            color: rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.04);
-        }
-    }
-
-    // ── Active (focused) + Has value states ──
-    &--active,
-    &--has-value {
-        label {
-            top: 10px;
-            left: 42px;
-            transform: translateY(0) scale(0.72);
-            letter-spacing: 0.5px;
-        }
-    }
-
-    &--active {
-        label {
-            color: $primary;
-        }
-
-        .auth-input__icon {
-            color: $primary;
-        }
-
-        input {
-            border-color: $primary;
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary), transparent 88%);
-        }
-
-        .auth-input__bar {
-            left: 0;
-            width: 100%;
-        }
-    }
-
-    &--has-value:not(&--active) {
-        label {
-            color: rgba(255, 255, 255, 0.35);
-        }
-
-        input {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.07);
-        }
-    }
+// ── Error ──
+.auth__error {
+    background: rgba(255, 60, 60, 0.1);
+    border: 1px solid rgba(255, 60, 60, 0.25);
+    color: #ff6b6b;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    animation: authShake 0.4s ease;
 }
 
-//  ═══════════════════════════════════════
-//  KEYFRAMES
-//  ═══════════════════════════════════════
-
-@keyframes auth-info-enter {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes auth-shake {
+@keyframes authShake {
 
     0%,
     100% {
         transform: translateX(0);
     }
 
-    15% {
-        transform: translateX(-8px);
-    }
-
-    30% {
-        transform: translateX(7px);
-    }
-
-    45% {
-        transform: translateX(-5px);
-    }
-
-    60% {
-        transform: translateX(4px);
+    25% {
+        transform: translateX(-6px);
     }
 
     75% {
-        transform: translateX(-2px);
+        transform: translateX(6px);
     }
 }
 
-@keyframes auth-live-pulse {
+// ── Google Button ──
+.auth__google {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 
-    0%,
-    100% {
-        opacity: 1;
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
 
-    50% {
-        opacity: 0.55;
-    }
-}
-
-@keyframes auth-field-in {
-    0% {
-        opacity: 0;
-        transform: translateY(14px);
-    }
-
-    100% {
-        opacity: 1;
+    &:active {
         transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+// ── Divider ──
+.auth__divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.auth__divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.auth__divider span {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+// ── Form ──
+.auth__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+// ── Input Fields ──
+.auth__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth__field-icon {
+    position: absolute;
+    left: 1rem;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 1;
+    transition: color 0.3s;
+    pointer-events: none;
+}
+
+.auth__field input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: white;
+    font-size: 0.9rem;
+    font-family: inherit;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+        font-weight: 400;
+    }
+
+    &:focus {
+        border-color: rgba(143, 0, 255, 0.5);
+        background: rgba(143, 0, 255, 0.05);
+        box-shadow:
+            0 0 0 3px rgba(143, 0, 255, 0.1),
+            0 0 20px rgba(143, 0, 255, 0.08);
+
+        &~.auth__field-icon,
+        &+.auth__field-icon {
+            color: rgba(143, 0, 255, 0.8);
+        }
+    }
+}
+
+// Let the sibling selector work for icon on focus
+.auth__field:focus-within .auth__field-icon {
+    color: rgba(143, 0, 255, 0.8);
+}
+
+.auth__field-toggle {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.3s;
+
+    &:hover {
+        color: rgba(255, 255, 255, 0.7);
+    }
+}
+
+// ── Forgot Password ──
+.auth__forgot {
+    text-align: right;
+    margin-top: -0.25rem;
+
+    a {
+        font-size: 0.78rem;
+        color: rgba(143, 0, 255, 0.7);
+        font-weight: 500;
+        transition: color 0.3s;
+
+        &:hover {
+            color: rgba(143, 0, 255, 1);
+        }
+    }
+}
+
+// ── Submit Button ──
+.auth__submit {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #8f00ff 0%, #6b00cc 50%, #8f00ff 100%);
+    background-size: 200% 100%;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+    }
+
+    &:hover {
+        background-position: 100% 0;
+        transform: translateY(-2px);
+        box-shadow:
+            0 12px 40px rgba(143, 0, 255, 0.35),
+            0 0 20px rgba(143, 0, 255, 0.2);
+
+        &::before {
+            transform: translateX(100%);
+        }
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+.auth__spinner {
+    animation: authSpin 1s linear infinite;
+}
+
+@keyframes authSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ── Toggle Mode ──
+.auth__switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.4);
+
+    a {
+        color: rgba(143, 0, 255, 0.85);
+        font-weight: 600;
+        margin-left: 0.35rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        transition: color 0.3s;
+
+        &:hover {
+            color: #a933ff;
+        }
+    }
+}
+
+// ── Legal Text ──
+.auth__legal {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.2);
+    line-height: 1.5;
+
+    a {
+        color: rgba(255, 255, 255, 0.35);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
     }
 }

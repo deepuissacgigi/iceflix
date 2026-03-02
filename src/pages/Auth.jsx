@@ -1,91 +1,57 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Star, Calendar, Mail, Lock, User, Film } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Mail, Lock, User } from 'lucide-react';
 import ENDPOINTS from '../services/endpoints';
-import { getTrendingMovies, getMovieVideos } from '../services/tmdb';
-import ProgressiveHeroImage from '../components/ui/ProgressiveHeroImage';
-const ReactPlayer = React.lazy(() => import('react-player'));
+import { getTrendingMovies } from '../services/tmdb';
 import useDocTitle from '../hooks/useDocTitle';
-
-const SLIDE_INTERVAL = 10000;
 
 const Auth = () => {
     useDocTitle('Sign In');
-    const [mode, setMode] = useState('login'); // 'login' | 'signup'
+    const [mode, setMode] = useState('login');
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [slides, setSlides] = useState([]);
-    const [activeSlide, setActiveSlide] = useState(0);
+    const [bgImages, setBgImages] = useState([]);
+    const [activeBg, setActiveBg] = useState(0);
     const [mounted, setMounted] = useState(false);
-    const [activeField, setActiveField] = useState(null);
-    const [trailerReady, setTrailerReady] = useState(false);
 
     const { signIn, signUp, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
 
-    // Mount animation
     useEffect(() => {
-        const t = setTimeout(() => setMounted(true), 100);
+        const t = setTimeout(() => setMounted(true), 50);
         return () => clearTimeout(t);
     }, []);
 
-    // Fetch trending movies for the cinematic background
+    // Fetch cinematic backgrounds
     useEffect(() => {
-        const loadSlides = async () => {
+        const load = async () => {
             try {
                 const movies = await getTrendingMovies();
-                const top = movies
-                    .filter(m => m.backdrop_path && m.vote_average > 6.5)
+                const paths = movies
+                    .filter(m => m.backdrop_path && m.vote_average > 6)
                     .sort((a, b) => b.popularity - a.popularity)
-                    .slice(0, 6);
-
-                const data = await Promise.all(
-                    top.map(async (movie) => {
-                        let trailerKey = null;
-                        try {
-                            const videos = await getMovieVideos(movie.id);
-                            const trailer =
-                                videos.find(v => v.type === 'Trailer' && v.site === 'YouTube' && v.official) ||
-                                videos.find(v => v.type === 'Trailer' && v.site === 'YouTube') ||
-                                videos.find(v => v.site === 'YouTube');
-                            if (trailer) trailerKey = trailer.key;
-                        } catch { /* silent */ }
-
-                        return {
-                            id: movie.id,
-                            title: movie.title || movie.name,
-                            backdrop: movie.backdrop_path,
-                            year: (movie.release_date || '').substring(0, 4),
-                            rating: movie.vote_average?.toFixed(1),
-                            overview: movie.overview?.substring(0, 160),
-                            trailerKey,
-                        };
-                    })
-                );
-                setSlides(data);
-            } catch (err) {
-                console.error('Auth: failed to load slides', err);
-            }
+                    .slice(0, 5)
+                    .map(m => m.backdrop_path);
+                setBgImages(paths);
+            } catch { /* silent */ }
         };
-        loadSlides();
+        load();
     }, []);
 
-    // Auto-cycle slides
+    // Auto-cycle backgrounds
     useEffect(() => {
-        if (slides.length <= 1) return;
+        if (bgImages.length <= 1) return;
         const timer = setInterval(() => {
-            setTrailerReady(false);
-            setActiveSlide(prev => (prev + 1) % slides.length);
-        }, SLIDE_INTERVAL);
+            setActiveBg(prev => (prev + 1) % bgImages.length);
+        }, 8000);
         return () => clearInterval(timer);
-    }, [slides.length]);
+    }, [bgImages.length]);
 
-    // Form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -122,116 +88,67 @@ const Auth = () => {
         setMode(prev => prev === 'login' ? 'signup' : 'login');
     }, []);
 
-    const current = slides[activeSlide];
-    const trailerKey = current?.trailerKey;
     const isLogin = mode === 'login';
 
     return (
-        <div className={`auth-page ${mounted ? 'auth-page--visible' : ''}`}>
-            {/* ═══════════ LEFT — CINEMATIC SHOWCASE ═══════════ */}
-            <div className="auth-page__cinema">
-                <div className="auth-cinema">
-                    {/* Backdrop Images */}
-                    {slides.map((slide, i) => (
-                        <div
-                            key={slide.id}
-                            className={`auth-cinema__slide ${i === activeSlide ? 'auth-cinema__slide--active' : ''}`}
-                        >
-                            <ProgressiveHeroImage
-                                path={slide.backdrop}
-                                alt={slide.title}
-                            />
-                        </div>
-                    ))}
-
-                    {/* Trailer Layer */}
-                    {trailerKey && (
-                        <div className={`auth-cinema__trailer ${trailerReady ? 'auth-cinema__trailer--visible' : ''}`}>
-                            <ReactPlayer
-                                key={trailerKey}
-                                url={`https://www.youtube.com/watch?v=${trailerKey}`}
-                                playing muted loop
-                                width="100%" height="100%"
-                                controls={false}
-                                onReady={() => setTrailerReady(true)}
-                                config={{
-                                    youtube: {
-                                        playerVars: {
-                                            autoplay: 1, controls: 0, showinfo: 0, rel: 0,
-                                            modestbranding: 1, iv_load_policy: 3, disablekb: 1,
-                                            fs: 0, playsinline: 1, start: 15,
-                                            origin: window.location.origin,
-                                        },
-                                    },
-                                }}
-                            />
-                        </div>
-                    )}
-
-                    {/* Gradient Overlays */}
-                    <div className="auth-cinema__gradient" />
-                    <div className="auth-cinema__edge" />
-                </div>
-
-                {/* Movie Info */}
-                {current && (
-                    <div className="auth-cinema__info" key={current.id}>
-                        <div className="auth-cinema__badges">
-                            {current.rating && (
-                                <span className="auth-cinema__badge">
-                                    <Star size={11} /> {current.rating}
-                                </span>
-                            )}
-                            {current.year && (
-                                <span className="auth-cinema__badge">
-                                    <Calendar size={11} /> {current.year}
-                                </span>
-                            )}
-                            {trailerKey && trailerReady && (
-                                <span className="auth-cinema__badge auth-cinema__badge--live">
-                                    <Film size={11} /> NOW PLAYING
-                                </span>
-                            )}
-                        </div>
-                        <h2 className="auth-cinema__title">{current.title}</h2>
-                        <p className="auth-cinema__overview">{current.overview}</p>
-                    </div>
-                )}
-
-                {/* Slide Indicators */}
-                {slides.length > 1 && (
-                    <div className="auth-cinema__indicators">
-                        {slides.map((_, i) => (
-                            <button
-                                key={i}
-                                aria-label={`Slide ${i + 1}`}
-                                className={`auth-cinema__dot ${i === activeSlide ? 'auth-cinema__dot--active' : ''}`}
-                                onClick={() => { setTrailerReady(false); setActiveSlide(i); }}
-                            />
-                        ))}
-                    </div>
-                )}
+        <div className={`auth ${mounted ? 'auth--visible' : ''}`}>
+            {/* ── Full-Bleed Cinematic Background ── */}
+            <div className="auth__bg">
+                {bgImages.map((path, i) => (
+                    <img
+                        key={path}
+                        src={`${ENDPOINTS.IMAGE_BASE_URL_ORIGINAL}${path}`}
+                        alt=""
+                        className={`auth__bg-img ${i === activeBg ? 'auth__bg-img--active' : ''}`}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                    />
+                ))}
+                <div className="auth__bg-overlay" />
+                <div className="auth__bg-noise" />
             </div>
 
-            {/* ═══════════ RIGHT — AUTH FORM ═══════════ */}
-            <div className="auth-page__form-side">
-                <div className="auth-card">
+            {/* ── Animated Gradient Orbs ── */}
+            <div className="auth__orbs">
+                <div className="auth__orb auth__orb--1" />
+                <div className="auth__orb auth__orb--2" />
+                <div className="auth__orb auth__orb--3" />
+            </div>
+
+            {/* ── Glass Form Card ── */}
+            <div className="auth__card-wrap">
+                <div className={`auth__card ${isLogin ? '' : 'auth__card--signup'}`}>
                     {/* Brand */}
-                    <Link to="/" className="auth-card__brand">
-                        <span>ICE</span><span className="auth-card__brand-accent">FLIX</span>
+                    <Link to="/" className="auth__brand">
+                        <span className="auth__brand-ice">ICE</span>
+                        <span className="auth__brand-flix">FLIX</span>
                     </Link>
 
-                    {/* Heading */}
-                    <div className="auth-card__header">
-                        <h1>{isLogin ? 'Welcome back' : 'Join the experience'}</h1>
-                        <p>{isLogin ? 'Sign in to continue your cinematic journey' : 'Create your free account and start streaming'}</p>
+                    {/* Header */}
+                    <div className="auth__header">
+                        <h1 key={mode} className="auth__title">
+                            {isLogin ? 'Welcome back' : 'Create account'}
+                        </h1>
+                        <p className="auth__subtitle">
+                            {isLogin
+                                ? 'Enter your credentials to access your account'
+                                : 'Start your free streaming journey today'}
+                        </p>
                     </div>
 
                     {/* Error */}
-                    {error && <div className="auth-card__error">{error}</div>}
+                    {error && (
+                        <div className="auth__error">
+                            <span>⚠</span> {error}
+                        </div>
+                    )}
 
-                    {/* Google OAuth */}
-                    <button type="button" className="auth-card__google" onClick={handleGoogleLogin} disabled={loading}>
+                    {/* Google Sign-In */}
+                    <button
+                        type="button"
+                        className="auth__google"
+                        onClick={handleGoogleLogin}
+                        disabled={loading}
+                    >
                         <svg width="18" height="18" viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -242,75 +159,79 @@ const Auth = () => {
                     </button>
 
                     {/* Divider */}
-                    <div className="auth-card__divider">
-                        <div className="auth-card__divider-line" />
+                    <div className="auth__divider">
+                        <div className="auth__divider-line" />
                         <span>or</span>
-                        <div className="auth-card__divider-line" />
+                        <div className="auth__divider-line" />
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit} autoComplete="off" className="auth-card__form">
+                    <form onSubmit={handleSubmit} autoComplete="off" className="auth__form">
                         {/* Username (signup only) */}
                         {!isLogin && (
-                            <div className={`auth-input ${activeField === 'username' ? 'auth-input--active' : ''} ${username ? 'auth-input--has-value' : ''}`}>
-                                <User size={16} className="auth-input__icon" />
+                            <div className="auth__field">
+                                <User size={16} className="auth__field-icon" />
                                 <input
-                                    type="text" id="auth-username"
+                                    type="text"
+                                    id="auth-username"
+                                    placeholder="Username"
                                     value={username}
                                     onChange={e => setUsername(e.target.value)}
-                                    onFocus={() => setActiveField('username')}
-                                    onBlur={() => setActiveField(null)}
-                                    required autoComplete="off"
+                                    required
+                                    autoComplete="off"
                                 />
-                                <label htmlFor="auth-username">Username</label>
-                                <span className="auth-input__bar" />
                             </div>
                         )}
 
                         {/* Email */}
-                        <div className={`auth-input ${activeField === 'email' ? 'auth-input--active' : ''} ${email ? 'auth-input--has-value' : ''}`}>
-                            <Mail size={16} className="auth-input__icon" />
+                        <div className="auth__field">
+                            <Mail size={16} className="auth__field-icon" />
                             <input
-                                type="email" id="auth-email"
+                                type="email"
+                                id="auth-email"
+                                placeholder="Email address"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                onFocus={() => setActiveField('email')}
-                                onBlur={() => setActiveField(null)}
-                                required autoComplete="email" name="email"
+                                required
+                                autoComplete="email"
+                                name="email"
                             />
-                            <label htmlFor="auth-email">Email address</label>
-                            <span className="auth-input__bar" />
                         </div>
 
                         {/* Password */}
-                        <div className={`auth-input ${activeField === 'password' ? 'auth-input--active' : ''} ${password ? 'auth-input--has-value' : ''}`}>
-                            <Lock size={16} className="auth-input__icon" />
+                        <div className="auth__field">
+                            <Lock size={16} className="auth__field-icon" />
                             <input
-                                type={showPassword ? 'text' : 'password'} id="auth-password"
+                                type={showPassword ? 'text' : 'password'}
+                                id="auth-password"
+                                placeholder="Password"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                onFocus={() => setActiveField('password')}
-                                onBlur={() => setActiveField(null)}
-                                required autoComplete="current-password" name="password"
+                                required
+                                autoComplete="current-password"
+                                name="password"
                             />
-                            <label htmlFor="auth-password">Password</label>
-                            <span className="auth-input__bar" />
-                            <button type="button" className="auth-input__toggle" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
+                            <button
+                                type="button"
+                                className="auth__field-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                                tabIndex={-1}
+                            >
                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                         </div>
 
-                        {/* Forgot Password */}
+                        {/* Forgot */}
                         {isLogin && (
-                            <div className="auth-card__forgot">
+                            <div className="auth__forgot">
                                 <a href="#">Forgot password?</a>
                             </div>
                         )}
 
                         {/* Submit */}
-                        <button type="submit" className="auth-card__submit" disabled={loading}>
+                        <button type="submit" className="auth__submit" disabled={loading}>
                             {loading ? (
-                                <Loader2 size={20} className="animate-spin" />
+                                <Loader2 size={20} className="auth__spinner" />
                             ) : (
                                 <>
                                     <span>{isLogin ? 'Sign in' : 'Create account'}</span>
@@ -320,8 +241,8 @@ const Auth = () => {
                         </button>
                     </form>
 
-                    {/* Toggle */}
-                    <p className="auth-card__switch">
+                    {/* Toggle Mode */}
+                    <p className="auth__switch">
                         {isLogin ? "Don't have an account?" : 'Already a member?'}
                         <a href="#" onClick={toggleMode}>
                             {isLogin ? 'Sign up free' : 'Sign in'}
@@ -330,7 +251,7 @@ const Auth = () => {
                     </p>
 
                     {/* Legal */}
-                    <p className="auth-card__legal">
+                    <p className="auth__legal">
                         By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
                     </p>
                 </div>
