@@ -39,9 +39,14 @@ const Auth = () => {
                     getTopRatedTV()
                 ]);
 
-                // Combine, filter out missing backdrops, and ensure high rating
+                // Combine, filter out missing backdrops, ensure high rating, AND exclude Animation (genre ID 16)
                 const allContent = [...movies, ...tvShows]
-                    .filter(item => item.backdrop_path && item.vote_average > 7.5);
+                    .filter(item => {
+                        const hasBackdrop = !!item.backdrop_path;
+                        const isHighlyRated = item.vote_average > 7.5;
+                        const isNotAnimation = !(item.genre_ids || []).includes(16);
+                        return hasBackdrop && isHighlyRated && isNotAnimation;
+                    });
 
                 // Shuffle array (Fisher-Yates)
                 for (let i = allContent.length - 1; i > 0; i--) {
