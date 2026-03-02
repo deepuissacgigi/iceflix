@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Loader2, Eye, EyeOff, ArrowRight, ChevronRight, Mail, Lock, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ENDPOINTS from '../services/endpoints';
-import { getTrendingMovies } from '../services/tmdb';
+import { getTopRatedMovies, getTopRatedTV } from '../services/tmdb';
 import useDocTitle from '../hooks/useDocTitle';
 
 const Auth = () => {
@@ -29,16 +29,31 @@ const Auth = () => {
         return () => clearTimeout(t);
     }, []);
 
-    // Fetch cinematic backgrounds
+    // Fetch cinematic backgrounds (Famous Movies & TV Shows)
     useEffect(() => {
         const load = async () => {
             try {
-                const movies = await getTrendingMovies();
-                const paths = movies
-                    .filter(m => m.backdrop_path && m.vote_average > 6)
-                    .sort((a, b) => b.popularity - a.popularity)
-                    .slice(0, 5)
+                // Fetch top-rated movies and TV shows (these are the most famous/acclaimed)
+                const [movies, tvShows] = await Promise.all([
+                    getTopRatedMovies(),
+                    getTopRatedTV()
+                ]);
+
+                // Combine, filter out missing backdrops, and ensure high rating
+                const allContent = [...movies, ...tvShows]
+                    .filter(item => item.backdrop_path && item.vote_average > 7.5);
+
+                // Shuffle array (Fisher-Yates)
+                for (let i = allContent.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allContent[i], allContent[j]] = [allContent[j], allContent[i]];
+                }
+
+                // Pick top 12 unique backdrops
+                const paths = allContent
+                    .slice(0, 12)
                     .map(m => m.backdrop_path);
+
                 setBgImages(paths);
             } catch { /* silent */ }
         };
