@@ -17,6 +17,17 @@ import { HomeSkeleton } from '../components/loaders/Loaders';
 import { useContinueWatching } from '../hooks/useContinueWatching';
 import ContinueWatchingRow from '../components/layout/ContinueWatchingRow';
 import useDocTitle from '../hooks/useDocTitle';
+
+// Helper to filter out anime (Animation genre from Japan)
+const filterAnime = (items) => {
+    if (!items) return [];
+    return items.filter(item => {
+        const hasAnimationGenre = item.genre_ids?.includes(16);
+        const isJapanese = item.origin_country?.includes('JP') || item.original_language === 'ja';
+        return !(hasAnimationGenre && isJapanese);
+    });
+};
+
 const Home = () => {
     useDocTitle('Home');
     const { history, removeHistoryItem } = useContinueWatching();
@@ -70,14 +81,7 @@ const Home = () => {
                     getTVShowsByGenre(9648),      // 19 Mystery TV
                 ]);
 
-                // Filter out anime (Animation genre from Japan)
-                const filterAnime = (items) => {
-                    return items.filter(item => {
-                        const hasAnimationGenre = item.genre_ids?.includes(16);
-                        const isJapanese = item.origin_country?.includes('JP') || item.original_language === 'ja';
-                        return !(hasAnimationGenre && isJapanese);
-                    });
-                };
+                // Use external filterAnime
 
                 setData({
                     trending: filterAnime(results[0]),
@@ -130,26 +134,27 @@ const Home = () => {
                 )}
 
 
-                <Row title="Trending Worldwide" items={data.trending} />
-                <Row title="Now Playing in Theaters" items={data.nowPlayingMovies} />
-                <Row title="Popular Movies" items={data.popularMovies} />
-                <Row title="Popular TV Shows" items={data.popularTV} />
-                <Row title="Critically Acclaimed Movies" items={data.topRatedMovies} />
-                <Row title="Top Rated TV Series" items={data.topRatedTV} />
-                <Row title="Upcoming Movies" items={data.upcomingMovies} />
-                <Row title="TV Airing Today" items={data.airingTodayTV} />
-                <Row title="Action Blockbusters" items={data.actionMovies} />
-                <Row title="Comedy TV Hits" items={data.comedyTV} />
-                <Row title="Sci-Fi Spectacles" items={data.scifiMovies} />
-                <Row title="Dramatic Masterpieces" items={data.dramaTV} />
-                <Row title="Horror & Gore" items={data.horrorMovies} />
-                <Row title="Crime & Mystery Series" items={data.crimeTV} />
-                <Row title="Edge of Your Seat Thrillers" items={data.thrillerMovies} />
-                <Row title="Reality TV Favorites" items={data.realityTV} />
-                <Row title="Romantic Getaways" items={data.romanceMovies} />
-                <Row title="Animated Worlds" items={data.animationTV} />
-                <Row title="True Stories & Docs" items={data.docMovies} />
-                <Row title="Whodunnit Mysteries" items={data.mysteryTV} />
+                <Row title="Trending Worldwide" items={data.trending} fetchMore={async (page) => filterAnime(await getTrending(page))} />
+                <Row title="Now Playing in Theaters" items={data.nowPlayingMovies} fetchMore={async (page) => filterAnime(await getNowPlayingMovies(page))} />
+                <Row title="Popular Movies" items={data.popularMovies} fetchMore={async (page) => filterAnime(await getPopularMovies(page))} />
+                <Row title="Popular TV Shows" items={data.popularTV} fetchMore={async (page) => filterAnime(await getTvShows(page))} />
+                <Row title="Critically Acclaimed Movies" items={data.topRatedMovies} fetchMore={async (page) => filterAnime(await getTopRatedMovies(page))} />
+                <Row title="Top Rated TV Series" items={data.topRatedTV} fetchMore={async (page) => filterAnime(await getTopRatedTV(page))} />
+                <Row title="Upcoming Movies" items={data.upcomingMovies} fetchMore={async (page) => filterAnime(await getUpcomingMovies(page))} />
+                <Row title="TV Airing Today" items={data.airingTodayTV} fetchMore={async (page) => filterAnime(await getAiringTodayTV(page))} />
+
+                <Row title="Action Blockbusters" items={data.actionMovies} fetchMore={async (page) => filterAnime(await getMoviesByGenre(28, page))} />
+                <Row title="Comedy TV Hits" items={data.comedyTV} fetchMore={async (page) => filterAnime(await getTVShowsByGenre(35, page))} />
+                <Row title="Sci-Fi Spectacles" items={data.scifiMovies} fetchMore={async (page) => filterAnime(await getMoviesByGenre(878, page))} />
+                <Row title="Dramatic Masterpieces" items={data.dramaTV} fetchMore={async (page) => filterAnime(await getTVShowsByGenre(18, page))} />
+                <Row title="Horror & Gore" items={data.horrorMovies} fetchMore={async (page) => filterAnime(await getMoviesByGenre(27, page))} />
+                <Row title="Crime & Mystery Series" items={data.crimeTV} fetchMore={async (page) => filterAnime(await getTVShowsByGenre(80, page))} />
+                <Row title="Edge of Your Seat Thrillers" items={data.thrillerMovies} fetchMore={async (page) => filterAnime(await getMoviesByGenre(53, page))} />
+                <Row title="Reality TV Favorites" items={data.realityTV} fetchMore={async (page) => filterAnime(await getTVShowsByGenre(10764, page))} />
+                <Row title="Romantic Getaways" items={data.romanceMovies} fetchMore={async (page) => filterAnime(await getMoviesByGenre(10749, page))} />
+                <Row title="Animated Worlds" items={data.animationTV} fetchMore={async (page) => filterAnime(await getTVShowsByGenre(16, page))} />
+                <Row title="True Stories & Docs" items={data.docMovies} fetchMore={async (page) => filterAnime(await getMoviesByGenre(99, page))} />
+                <Row title="Whodunnit Mysteries" items={data.mysteryTV} fetchMore={async (page) => filterAnime(await getTVShowsByGenre(9648, page))} />
             </div>
         </div>
     );

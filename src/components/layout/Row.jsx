@@ -3,12 +3,26 @@ import MovieCard from '../cards/MovieCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useInView from '../../hooks/useInView';
 
-const Row = ({ title, items = [], CardComponent = MovieCard, onRemove }) => {
+const Row = ({ title, items = [], CardComponent = MovieCard, onRemove, fetchMore }) => {
     const rowRef = useRef(null);
     const [isDown, setIsDown] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
+
+    // Infinite Scroll State
+    const [localItems, setLocalItems] = useState(items);
+    const [page, setPage] = useState(1);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const sentinelRef = useRef(null);
+
+    // Sync local items if parent props change (e.g., initial load mapping)
+    useEffect(() => {
+        setLocalItems(items);
+        setPage(1);
+        setHasMore(true);
+    }, [items]);
 
     // Lazy loading: only render cards when the row is near the viewport
     const [sectionRef, isInView] = useInView({ rootMargin: '300px' });
@@ -113,6 +127,50 @@ const Row = ({ title, items = [], CardComponent = MovieCard, onRemove }) => {
         }
     };
 
+    // Infinite Scroll Observer
+    useEffect(() => {
+        if (!fetchMore || !hasMore || isFetchingMore || !isInView) return;
+
+        const observer = new IntersectionObserver(
+            async (entries) => {
+                const target = entries[0];
+                if (target.isIntersecting) {
+                    setIsFetchingMore(true);
+                    try {
+                        const nextPage = page + 1;
+                        const newItems = await fetchMore(nextPage);
+                        if (newItems && newItems.length > 0) {
+                            setLocalItems(prev => {
+                                // Deduplicate logic
+                                const existingIds = new Set(prev.map(i => i.id));
+                                const uniqueNew = newItems.filter(item => !existingIds.has(item.id));
+                                return [...prev, ...uniqueNew];
+                            });
+                            setPage(nextPage);
+                        } else {
+                            setHasMore(false); // No more pages to fetch
+                        }
+                    } catch (error) {
+                        console.error('Error fetching more row items:', error);
+                    } finally {
+                        setIsFetchingMore(false);
+                    }
+                }
+            },
+            {
+                root: rowRef.current,
+                rootMargin: '0px 600px 0px 0px', // Trigger 600px before the end
+                threshold: 0
+            }
+        );
+
+        if (sentinelRef.current) {
+            observer.observe(sentinelRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [fetchMore, hasMore, isFetchingMore, page, isInView]);
+
     return (
         <div
             className={`row-section ${isInView ? 'row-section--visible' : ''}`}
@@ -138,16 +196,21 @@ const Row = ({ title, items = [], CardComponent = MovieCard, onRemove }) => {
                     onMouseMove={handleMouseMove}
                 >
                     {isInView ? (
-                        items.map((item, index) => (
-                            <div
-                                key={item.id}
-                                className="row-item"
-                                style={{ '--item-index': index }}
-                                onClickCapture={handleCardClickCapture}
-                            >
-                                <CardComponent movie={item} onRemove={onRemove} />
-                            </div>
-                        ))
+                        <>
+                            {localItems.map((item, index) => (
+                                <div
+                                    key={`${item.id}-${index}`}
+                                    className="row-item"
+                                    style={{ '--item-index': index }}
+                                    onClickCapture={handleCardClickCapture}
+                                >
+                                    <CardComponent movie={item} onRemove={onRemove} />
+                                </div>
+                            ))}
+                            {fetchMore && hasMore && (
+                                <div ref={sentinelRef} style={{ width: '10px', height: '100%', flexShrink: 0, pointerEvents: 'none' }} />
+                            )}
+                        </>
                     ) : (
                         // Placeholder skeleton for height reservation
                         <div className="row-scroll__placeholder" />

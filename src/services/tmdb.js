@@ -22,44 +22,71 @@ const getMultiPageData = async (endpoint, pages = 1) => {
 
 // ── Cached list endpoints ──────────────────────────────────
 
-export const getTrending = () =>
-    cachedFetch('trending', () => getMultiPageData(ENDPOINTS.TRENDING, 1));
-
-export const getTrendingMovies = () =>
-    cachedFetch('trending_movies', async () => {
-        const response = await api.get(ENDPOINTS.TRENDING_MOVIES);
+export const getTrending = (page = 1) =>
+    cachedFetch(`trending_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TRENDING, { params: { page } });
         return response.data.results;
     });
 
-export const getTrendingTV = () =>
-    cachedFetch('trending_tv', async () => {
-        const response = await api.get(ENDPOINTS.TRENDING_TV);
+export const getTrendingMovies = (page = 1) =>
+    cachedFetch(`trending_movies_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TRENDING_MOVIES, { params: { page } });
         return response.data.results;
     });
 
-export const getPopularMovies = () =>
-    cachedFetch('popular_movies', () => getMultiPageData(ENDPOINTS.POPULAR_MOVIES, 1));
+export const getTrendingTV = (page = 1) =>
+    cachedFetch(`trending_tv_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TRENDING_TV, { params: { page } });
+        return response.data.results;
+    });
 
-export const getTopRatedMovies = () =>
-    cachedFetch('top_rated_movies', () => getMultiPageData(ENDPOINTS.TOP_RATED_MOVIES, 1));
+export const getPopularMovies = (page = 1) =>
+    cachedFetch(`popular_movies_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.POPULAR_MOVIES, { params: { page } });
+        return response.data.results;
+    });
 
-export const getUpcomingMovies = () =>
-    cachedFetch('upcoming_movies', () => getMultiPageData(ENDPOINTS.UPCOMING_MOVIES, 1));
+export const getTopRatedMovies = (page = 1) =>
+    cachedFetch(`top_rated_movies_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TOP_RATED_MOVIES, { params: { page } });
+        return response.data.results;
+    });
 
-export const getNowPlayingMovies = () =>
-    cachedFetch('now_playing_movies', () => getMultiPageData(ENDPOINTS.NOW_PLAYING_MOVIES, 1));
+export const getUpcomingMovies = (page = 1) =>
+    cachedFetch(`upcoming_movies_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.UPCOMING_MOVIES, { params: { page } });
+        return response.data.results;
+    });
 
-export const getTvShows = () =>
-    cachedFetch('tv_shows', () => getMultiPageData(ENDPOINTS.TV_SHOWS, 1));
+export const getNowPlayingMovies = (page = 1) =>
+    cachedFetch(`now_playing_movies_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.NOW_PLAYING_MOVIES, { params: { page } });
+        return response.data.results;
+    });
 
-export const getTopRatedTV = () =>
-    cachedFetch('top_rated_tv', () => getMultiPageData(ENDPOINTS.TV_TOP_RATED, 1));
+export const getTvShows = (page = 1) =>
+    cachedFetch(`tv_shows_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TV_SHOWS, { params: { page } });
+        return response.data.results;
+    });
 
-export const getAiringTodayTV = () =>
-    cachedFetch('airing_today_tv', () => getMultiPageData(ENDPOINTS.TV_AIRING_TODAY, 1));
+export const getTopRatedTV = (page = 1) =>
+    cachedFetch(`top_rated_tv_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TV_TOP_RATED, { params: { page } });
+        return response.data.results;
+    });
 
-export const getOnTheAirTV = () =>
-    cachedFetch('on_the_air_tv', () => getMultiPageData(ENDPOINTS.TV_ON_THE_AIR, 1));
+export const getAiringTodayTV = (page = 1) =>
+    cachedFetch(`airing_today_tv_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TV_AIRING_TODAY, { params: { page } });
+        return response.data.results;
+    });
+
+export const getOnTheAirTV = (page = 1) =>
+    cachedFetch(`on_the_air_tv_page_${page}`, async () => {
+        const response = await api.get(ENDPOINTS.TV_ON_THE_AIR, { params: { page } });
+        return response.data.results;
+    });
 
 // ── Detail endpoints (shorter cache — 2 min) ──────────────
 
@@ -89,10 +116,10 @@ export const searchMulti = async (query) => {
     return response.data.results;
 };
 
-export const getMoviesByGenre = (genreId) =>
-    cachedFetch(`movies_genre_${genreId}`, async () => {
+export const getMoviesByGenre = (genreId, page = 1) =>
+    cachedFetch(`movies_genre_${genreId}_page_${page}`, async () => {
         const response = await api.get(ENDPOINTS.DISCOVER_MOVIE, {
-            params: { with_genres: genreId },
+            params: { with_genres: genreId, page },
         });
         return response.data.results;
     });
@@ -105,10 +132,10 @@ export const getDiscoverMovies = async (genreId, page = 1) => {
     return response.data.results;
 };
 
-export const getTVShowsByGenre = (genreId) =>
-    cachedFetch(`tv_genre_${genreId}`, async () => {
+export const getTVShowsByGenre = (genreId, page = 1) =>
+    cachedFetch(`tv_genre_${genreId}_page_${page}`, async () => {
         const response = await api.get(ENDPOINTS.DISCOVER_TV, {
-            params: { with_genres: genreId },
+            params: { with_genres: genreId, page },
         });
         return response.data.results;
     });
