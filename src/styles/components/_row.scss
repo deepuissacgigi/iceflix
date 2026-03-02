@@ -30,9 +30,9 @@
 
     // Header Alignment
     h2 {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         font-weight: 700;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         color: rgba(255, 255, 255, 0.9);
         padding-left: var(--container-padding-mobile);
         text-transform: uppercase;
@@ -40,7 +40,7 @@
         transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 
         @include desktop {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             padding-left: var(--container-padding-desktop);
         }
 
@@ -155,7 +155,7 @@
     @include desktop {
         padding-left: var(--container-padding-desktop);
         padding-right: var(--container-padding-desktop);
-        gap: 1.5rem;
+        gap: 1rem;
     }
 
     &::after {
@@ -184,7 +184,7 @@
 
 .row-item {
     flex-shrink: 0;
-    width: 160px;
+    width: 140px;
 
     // ── Staggered cascade animation ──
     opacity: 0;
@@ -196,22 +196,26 @@
     transition-delay: calc(min(var(--item-index, 0), 15) * 0.04s);
 
     @include small-mobile {
-        width: 130px;
+        width: 120px;
     }
 
     @include tablet {
-        width: 220px;
+        width: 150px;
     }
 
     @include desktop {
-        width: 260px;
+        width: 155px;
+    }
+
+    @include wide {
+        width: 175px;
     }
 
     @include ultrawide {
-        width: 300px;
+        width: 210px;
     }
 
     @include tv {
-        width: 360px;
+        width: 280px;
     }
 }

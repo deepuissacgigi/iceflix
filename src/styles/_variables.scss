@@ -26,25 +26,25 @@
 
     // LAYOUT SYSTEM (Professional Spacing)
     --container-padding-mobile: 1rem;
-    --container-padding-desktop: 4rem; // 64px - Broad professional margins
-    --card-gap: 1.25rem;
-    --row-vertical-spacing: 2.5rem;
+    --container-padding-desktop: 3rem;
+    --card-gap: 1rem;
+    --row-vertical-spacing: 2rem;
 }
 
 // ── Responsive Scaling for Large Screens ──
 @media (min-width: 1600px) {
     :root {
-        --container-padding-desktop: 5rem;
-        --card-gap: 1.75rem;
-        --row-vertical-spacing: 3.5rem;
+        --container-padding-desktop: 4rem;
+        --card-gap: 1.25rem;
+        --row-vertical-spacing: 3rem;
     }
 }
 
 @media (min-width: 2000px) {
     :root {
-        --container-padding-desktop: 8rem;
-        --card-gap: 2.5rem;
-        --row-vertical-spacing: 5rem;
+        --container-padding-desktop: 6rem;
+        --card-gap: 1.75rem;
+        --row-vertical-spacing: 4rem;
     }
 }
 

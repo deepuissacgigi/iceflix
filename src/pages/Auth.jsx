@@ -20,7 +20,6 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const [posters, setPosters] = useState([]);
     const [mounted, setMounted] = useState(false);
-    const cardRef = useRef(null);
 
     const { signIn, signUp, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
@@ -62,21 +61,6 @@ const Auth = () => {
             } catch { /* silent */ }
         };
         load();
-    }, []);
-
-    // 3D tilt on mouse move
-    const handleMouseMove = useCallback((e) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width - 0.5) * 12;
-        const y = ((e.clientY - rect.top) / rect.height - 0.5) * -12;
-        cardRef.current.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${y}deg)`;
-    }, []);
-
-    const resetTilt = useCallback(() => {
-        if (cardRef.current) {
-            cardRef.current.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg)';
-        }
     }, []);
 
     const handleSubmit = async (e) => {
@@ -169,11 +153,7 @@ const Auth = () => {
             {/* ═══ Glass Card ═══ */}
             <div className="auth__card-wrap">
                 <div
-                    ref={cardRef}
                     className={`auth__card ${isLogin ? '' : 'auth__card--signup'}`}
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={resetTilt}
-                    style={{ transition: 'transform 0.15s ease-out' }}
                 >
                     <motion.div variants={containerVariants} initial="hidden" animate="show">
                         {/* Brand */}

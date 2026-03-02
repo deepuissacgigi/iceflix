@@ -15,7 +15,7 @@
     background: transparent;
 
     @include desktop {
-        padding: 2rem var(--container-padding-desktop);
+        padding: 1.5rem var(--container-padding-desktop);
     }
 
     @include tv {
