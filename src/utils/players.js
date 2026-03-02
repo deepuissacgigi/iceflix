@@ -1,16 +1,16 @@
 export const getMoviePlayers = (movieId) => {
     return [
         {
+            name: "VidLink",
+            url: `https://vidlink.pro/movie/${movieId}?autoplay=1`
+        },
+        {
             name: "VidSrc",
             url: `https://vidsrc.xyz/embed/movie/${movieId}?autoplay=1`
         },
         {
             name: "VidSrc Backup",
             url: `https://vidsrc.to/embed/movie/${movieId}?autoplay=1`
-        },
-        {
-            name: "VidLink",
-            url: `https://vidlink.pro/movie/${movieId}?autoplay=1`
         },
         {
             name: "SuperEmbed",
@@ -38,16 +38,16 @@ export const getMoviePlayers = (movieId) => {
 export const getTVPlayers = (seriesId, season, episode) => {
     return [
         {
+            name: "VidLink",
+            url: `https://vidlink.pro/tv/${seriesId}/${season}/${episode}?autoplay=1`
+        },
+        {
             name: "VidSrc",
             url: `https://vidsrc.xyz/embed/tv/${seriesId}/${season}/${episode}?autoplay=1`
         },
         {
             name: "VidSrc Backup",
             url: `https://vidsrc.to/embed/tv/${seriesId}/${season}/${episode}?autoplay=1`
-        },
-        {
-            name: "VidLink",
-            url: `https://vidlink.pro/tv/${seriesId}/${season}/${episode}?autoplay=1`
         },
         {
             name: "SuperEmbed",
