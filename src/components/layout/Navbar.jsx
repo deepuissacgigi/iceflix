@@ -7,6 +7,7 @@ import { searchMulti } from '../../services/tmdb';
 import ENDPOINTS from '../../services/endpoints';
 import { Spinner, SearchListSkeleton } from '../loaders/Loaders';
 import { useNotification } from '../../context/NotificationContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const getNotifIcon = (type) => {
     switch (type) {
