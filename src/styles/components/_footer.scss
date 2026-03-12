@@ -2,17 +2,20 @@
 @use '../mixins' as *;
 
 .footer {
-    padding: 4rem 1rem;
-    background-color: #000;
+    padding: 3rem 1rem;
+    background-color: transparent;
     color: $text-gray;
     margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 
     &__content {
         max-width: 980px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
 
         .footer__logo {
             font-size: 1.5rem;
@@ -44,86 +47,11 @@
             @include tv { font-size: 2.2rem; }
         }
 
-        .footer__top {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin-bottom: 0.5rem;
-
-            @include tablet {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-        }
-
-        .socials {
-            display: flex;
-            gap: 2rem;
-
-            a {
-                color: white;
-                transition: color 0.3s;
-                opacity: 0.8;
-
-                &:hover {
-                    opacity: 1;
-                    color: $primary;
-                }
-            }
-        }
-
-        .links {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem 2rem; // Row/Col gap
+        .footer__copyright {
             font-size: 0.8rem;
-            margin-bottom: 1.5rem;
-
-            @include tablet {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            @include desktop {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            li {
-                list-style: none;
-            }
-
-            a {
-                color: $text-gray;
-                text-decoration: none;
-                transition: text-decoration 0.2s;
-
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
-        }
-
-        .service-code {
-            font-size: 0.8rem;
-            border: 1px solid $text-gray;
-            display: inline-block;
-            padding: 0.4rem 0.8rem;
-            color: $text-gray;
-            background: transparent;
-            cursor: pointer;
-            margin-bottom: 1rem;
-            width: fit-content;
-            transition: all 0.2s;
-
-            &:hover {
-                color: white;
-                border-color: white;
-            }
-        }
-
-        .copyright-text {
-            font-size: 0.7rem;
-            opacity: 0.6;
+            opacity: 0.5;
+            margin: 0;
+            letter-spacing: 0.5px;
         }
     }
 }
