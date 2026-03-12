@@ -211,59 +211,17 @@ const VideoPlayerModal = () => {
 
                 {/* In-Player Alert Box */}
                 {showAdAlert && !isMinimized && (
-                    <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                        backdropFilter: 'blur(8px)',
-                        zIndex: 100,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        animation: 'fadeIn 0.3s ease-out'
-                    }}>
-                        <div style={{
-                            background: '#1a1a1a',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '16px',
-                            padding: '32px',
-                            maxWidth: '400px',
-                            width: '90%',
-                            textAlign: 'center',
-                            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '16px'
-                        }}>
-                            <div style={{
-                                background: 'rgba(255, 173, 31, 0.15)',
-                                color: '#ffad1f',
-                                padding: '12px',
-                                borderRadius: '50%'
-                            }}>
-                                <Activity size={32} />
+                    <div className="player-ad-warning">
+                        <div className="player-ad-warning__card">
+                            <div className="player-ad-warning__icon-wrapper">
+                                <Activity className="player-ad-warning__icon" size={32} />
                             </div>
-                            <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: 0 }}>Ad Warning</h3>
-                            <p style={{ color: '#a0a0a0', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                            <h3 className="player-ad-warning__title">Ad Warning</h3>
+                            <p className="player-ad-warning__text">
                                 Ads may appear from streaming providers. We strongly recommend using a reputable <strong>adblocker</strong> for an uninterrupted experience.
                             </p>
                             <button
-                                style={{
-                                    marginTop: '8px',
-                                    background: '#ffad1f',
-                                    color: '#000',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    padding: '12px 24px',
-                                    fontSize: '0.95rem',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    width: '100%',
-                                    transition: 'all 0.2s ease'
-                                }}
-                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                className="player-ad-warning__btn"
                                 onClick={() => {
                                     setShowAdAlert(false);
                                     sessionStorage.setItem('adWarningDismissed', 'true');
