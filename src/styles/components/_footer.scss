@@ -27,12 +27,12 @@
             display: inline-flex;
             align-items: center;
 
-            background: linear-gradient(300deg,
+            background-image: linear-gradient(300deg,
                     #ffffff 0%,
                     $primary 25%,
                     #e0e0e0 50%,
                     $primary 75%,
-                    #ffffff 100%);
+                    #ffffff 100%) !important;
             background-size: 400% 400%;
             animation: logo-shimmer 20s ease infinite;
 
