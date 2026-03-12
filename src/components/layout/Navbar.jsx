@@ -124,7 +124,8 @@ const Navbar = () => {
             setLoading(true);
             try {
                 const data = await searchMulti(debouncedSearchValue);
-                setResults(data.slice(0, 5));
+                const validResults = data.filter(item => item.poster_path || item.profile_path);
+                setResults(validResults.slice(0, 5));
             } catch (error) {
                 console.error('Search error:', error);
             } finally {
@@ -211,14 +212,18 @@ const Navbar = () => {
                                             handleResultClick(item.id, item.media_type || 'movie');
                                         }}>
                                             <img
-                                                src={item.poster_path ? `${ENDPOINTS.IMAGE_BASE_URL}${item.poster_path}` : 'https://via.placeholder.com/50x75'}
+                                                src={item.poster_path || item.profile_path ? `${ENDPOINTS.IMAGE_BASE_URL_W300}${item.poster_path || item.profile_path}` : 'https://placehold.co/50x75/1a1a1a/666666?text=No+Image'}
                                                 alt={item.title || item.name}
                                                 loading="lazy"
                                                 decoding="async"
+                                                onError={(e) => { e.target.src = 'https://placehold.co/50x75/1a1a1a/666666?text=No+Image'; }}
                                             />
                                             <div className="info">
                                                 <h4>{item.title || item.name}</h4>
-                                                <span>{item.release_date || item.first_air_date ? (item.release_date || item.first_air_date).substring(0, 4) : 'N/A'} • {item.media_type === 'tv' ? 'TV Show' : 'Movie'}</span>
+                                                <span>
+                                                    {item.media_type === 'person' ? 'Person' : (item.release_date || item.first_air_date ? (item.release_date || item.first_air_date).substring(0, 4) : 'N/A')}
+                                                    {item.media_type !== 'person' && ` • ${item.media_type === 'tv' ? 'TV Show' : 'Movie'}`}
+                                                </span>
                                             </div>
                                         </li>
                                     ))}
