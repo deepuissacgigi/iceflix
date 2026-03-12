@@ -23,8 +23,8 @@ const Search = () => {
             setLoading(true);
             try {
                 const data = await searchMulti(debouncedQuery);
-                // Filter out results without poster images (e.g., person results)
-                setResults(data.filter(item => item.poster_path));
+                // Filter out results without any images
+                setResults(data.filter(item => item.poster_path || item.profile_path));
             } catch (error) {
                 console.error('Search error:', error);
             } finally {

@@ -8,14 +8,15 @@ import LazyImage from '../ui/LazyImage';
 const MovieCard = ({ movie }) => {
     const navigate = useNavigate();
 
-    const posterPath = movie.poster_path
-        ? `${ENDPOINTS.IMAGE_BASE_URL_W500}${movie.poster_path}`
+    const imagePath = movie.poster_path || movie.profile_path;
+    const posterPath = imagePath
+        ? `${ENDPOINTS.IMAGE_BASE_URL_W500}${imagePath}`
         : 'https://placehold.co/500x750/1a1a1a/666666?text=No+Image';
 
     const title = movie.title || movie.name;
     const releaseDate = movie.release_date || movie.first_air_date;
-    const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
-    const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'NR';
+    const year = releaseDate ? new Date(releaseDate).getFullYear() : (movie.known_for_department ? 'Person' : 'N/A');
+    const rating = movie.vote_average ? movie.vote_average.toFixed(1) : (movie.popularity ? movie.popularity.toFixed(0) : 'NR');
 
     return (
         <motion.div

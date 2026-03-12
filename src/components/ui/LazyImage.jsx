@@ -6,7 +6,7 @@ const LazyImage = ({ src, alt, className = '', style = {}, ...props }) => {
     const [hasError, setHasError] = useState(false);
 
     return (
-        <div className={`lazy-image-container ${className}`} style={{ position: 'relative', overflow: 'hidden', ...style }}>
+        <div className={`lazy-image-container ${className}`} style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', ...style }}>
             {/* Skeleton / Loading State */}
             <AnimatePresence mode="popLayout">
                 {!isLoaded && !hasError && (
