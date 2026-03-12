@@ -7,7 +7,7 @@ const Footer = () => {
         <footer className="footer">
             <div className="footer__content">
                 <div className="footer__top">
-                    <Link to="/" className="logo logo--footer" data-darkreader-inline-color style={{ '--darkreader-inline-color': 'initial' }}>
+                    <Link to="/" className="footer__logo" data-darkreader-inline-color style={{ '--darkreader-inline-color': 'initial' }}>
                         ICEFLIX
                     </Link>
                     <div className="socials">

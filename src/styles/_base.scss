@@ -44,38 +44,9 @@ textarea,
     cursor: text;
 }
 
-// ═══ Logo Typography & Dark Mode Protection ═══
-// Explicitly forces colors so extensions like Dark Reader don't invert them
-.logo {
-    font-family: 'Oswald', system-ui, sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    background: linear-gradient(to right, #ff0f0f, #ff4d4d) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    color: transparent !important;
-    text-decoration: none !important;
-    display: inline-block;
-    transition: transform 0.3s ease;
-    
-    // Force light scheme for this element to tell extensions to ignore it
-    color-scheme: only light !important;
-
-    &:hover {
-        transform: scale(1.05);
-    }
-
-    &--footer {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        margin-right: auto;
-    }
-}
-
 a {
+    color: $primary;
     text-decoration: none;
-    color: inherit;
     transition: color 0.3s ease;
 }
 

@@ -99,8 +99,9 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
 
-        // Glow
+        // Glow & Dark Mode Protection
         filter: drop-shadow(0 0 8px rgba($primary, 0.4));
+        color-scheme: only light !important;
 
         @include desktop {
             font-size: 1.8rem;
