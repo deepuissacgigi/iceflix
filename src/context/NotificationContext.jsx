@@ -61,11 +61,13 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
 
-    // Welcome popup — auto-opens the notification dropdown for 5s after login
+    // Welcome toast — shows a standalone floating toast for 5s after login
     const [welcomePopupActive, setWelcomePopupActive] = useState(false);
+    const [welcomeData, setWelcomeData] = useState({ name: '', avatar: null });
     const welcomeTimerRef = useRef(null);
 
-    const triggerWelcomePopup = useCallback(() => {
+    const triggerWelcomePopup = useCallback((data = {}) => {
+        setWelcomeData({ name: data.name || 'Streamer', avatar: data.avatar || null });
         setWelcomePopupActive(true);
         if (welcomeTimerRef.current) clearTimeout(welcomeTimerRef.current);
         welcomeTimerRef.current = setTimeout(() => {
@@ -87,6 +89,7 @@ export const NotificationProvider = ({ children }) => {
             clearAll,
             removeNotification,
             welcomePopupActive,
+            welcomeData,
             triggerWelcomePopup,
             dismissWelcomePopup
         }}>

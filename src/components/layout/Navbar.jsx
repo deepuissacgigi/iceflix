@@ -55,19 +55,12 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logoutUser } = useAuth();
-    const { notifications, unreadCount, markAllAsRead, clearAll, welcomePopupActive, dismissWelcomePopup } = useNotification();
+    const { notifications, unreadCount, markAllAsRead, clearAll, welcomePopupActive, welcomeData, dismissWelcomePopup } = useNotification();
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileRef = useRef(null);
 
-    // Auto-open notification dropdown on login welcome
-    useEffect(() => {
-        if (welcomePopupActive) {
-            setIsNotifOpen(true);
-        } else {
-            setIsNotifOpen(false);
-        }
-    }, [welcomePopupActive]);
+    // Welcome toast — no longer auto-opens notification dropdown
 
     useEffect(() => {
         const handleScroll = () => {
@@ -393,6 +386,33 @@ const Navbar = () => {
                     <span>Profile</span>
                 </Link>
             </div>
+
+            {/* ═══ Welcome Toast ═══ */}
+            <AnimatePresence>
+                {welcomePopupActive && (
+                    <motion.div
+                        className="navbar__welcome-toast"
+                        initial={{ opacity: 0, y: -30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        onClick={dismissWelcomePopup}
+                    >
+                        {welcomeData.avatar && (
+                            <img
+                                src={welcomeData.avatar}
+                                alt=""
+                                className="navbar__welcome-toast-avatar"
+                            />
+                        )}
+                        <div className="navbar__welcome-toast-text">
+                            <span className="navbar__welcome-toast-greeting">Welcome back!</span>
+                            <span className="navbar__welcome-toast-name">{welcomeData.name}</span>
+                        </div>
+                        <X size={14} className="navbar__welcome-toast-close" />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 };

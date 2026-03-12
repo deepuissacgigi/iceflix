@@ -1111,3 +1111,94 @@
         transform: scale(1) translateY(0);
     }
 }
+
+// ═══════════════════════════════════════
+//  WELCOME TOAST
+// ═══════════════════════════════════════
+
+.navbar__welcome-toast {
+    position: fixed;
+    top: 5rem;
+    right: 1.5rem;
+    z-index: 100001;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    background: rgba(15, 15, 25, 0.85);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    overflow: hidden;
+
+    // Purple accent line on top
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 10%;
+        right: 10%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(143, 0, 255, 0.7), rgba(0, 150, 255, 0.5), transparent);
+        border-radius: 2px;
+    }
+
+    &:hover {
+        border-color: rgba(143, 0, 255, 0.3);
+    }
+
+    @include small-mobile {
+        right: 0.75rem;
+        left: 0.75rem;
+        top: 4.5rem;
+    }
+}
+
+.navbar__welcome-toast-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(143, 0, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.navbar__welcome-toast-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.navbar__welcome-toast-greeting {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.navbar__welcome-toast-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navbar__welcome-toast-close {
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.3);
+    margin-left: 0.5rem;
+    transition: color 0.3s;
+
+    &:hover {
+        color: white;
+    }
+}

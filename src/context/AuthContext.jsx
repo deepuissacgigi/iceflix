@@ -29,12 +29,7 @@ export const AuthProvider = ({ children }) => {
             if (event === 'SIGNED_IN') {
                 const name = session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || 'Streamer';
                 const avatar = session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || null;
-                addNotification(`Welcome back, ${name}!`, 'success', {
-                    thumbnail: avatar,
-                    title: 'Signed In',
-                    subtitle: session?.user?.email || '',
-                });
-                triggerWelcomePopup();
+                triggerWelcomePopup({ name, avatar });
             } else if (event === 'SIGNED_OUT') {
                 addNotification('You have been signed out', 'info', {
                     title: 'Session Ended',
