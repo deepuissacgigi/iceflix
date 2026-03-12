@@ -216,7 +216,11 @@ const Navbar = () => {
                                                 alt={item.title || item.name}
                                                 loading="lazy"
                                                 decoding="async"
-                                                onError={(e) => { e.target.src = 'https://placehold.co/50x75/1a1a1a/666666?text=No+Image'; }}
+                                                onLoad={(e) => e.target.classList.add('loaded')}
+                                                onError={(e) => {
+                                                    e.target.src = 'https://placehold.co/50x75/1a1a1a/666666?text=No+Image';
+                                                    e.target.classList.add('loaded');
+                                                }}
                                             />
                                             <div className="info">
                                                 <h4>{item.title || item.name}</h4>
@@ -270,7 +274,7 @@ const Navbar = () => {
                                             {/* Thumbnail or Icon */}
                                             {n.thumbnail ? (
                                                 <div className="notif-thumb">
-                                                    <img src={n.thumbnail} alt="" loading="lazy" />
+                                                    <img src={n.thumbnail} alt="" loading="lazy" onLoad={(e) => e.target.classList.add('loaded')} onError={(e) => e.target.classList.add('loaded')} />
                                                     <span className="notif-type-badge" style={{ background: getNotifColor(n.type) }}>
                                                         {getNotifIcon(n.type)}
                                                     </span>
