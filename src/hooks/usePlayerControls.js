@@ -5,9 +5,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * 
  * Controls behavior:
  * - Show controls immediately on ANY mouse movement or keyboard press
- * - Auto-hide after 20 seconds of complete inactivity
- * - Always apply the same logic regardless of minimized/maximized state
+ * - Auto-hide after 15 seconds of complete inactivity
+ * - Uses window-level event listeners so mouse movement is detected even
+ *   when the cursor is over the iframe (which normally swallows events)
  */
+const HIDE_DELAY = 15000; // 15 seconds
+
 export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMaximize) => {
     const [showControls, setShowControls] = useState(true);
     const controlsTimeout = useRef(null);
@@ -19,12 +22,12 @@ export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMa
         }
     };
 
-    // Start the auto-hide countdown (20 seconds)
+    // Start the auto-hide countdown
     const startAutoHide = useCallback(() => {
         clearControlsTimeout();
         controlsTimeout.current = setTimeout(() => {
             setShowControls(false);
-        }, 20000); // 20 seconds
+        }, HIDE_DELAY);
     }, []);
 
     // Show controls and restart the hide timer
@@ -33,7 +36,41 @@ export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMa
         startAutoHide();
     }, [startAutoHide]);
 
-    // 1. Keyboard Shortcuts + Activity Detection
+    // 1. Global mouse movement detection — works even when cursor is over the iframe
+    //    because we detect when the mouse re-enters the modal area or moves anywhere
+    useEffect(() => {
+        if (!isOpen) return;
+
+        let lastX = 0;
+        let lastY = 0;
+
+        const handleGlobalMouseMove = (e) => {
+            // Only trigger if the mouse actually moved (avoid phantom events)
+            if (Math.abs(e.clientX - lastX) > 2 || Math.abs(e.clientY - lastY) > 2) {
+                lastX = e.clientX;
+                lastY = e.clientY;
+                revealControls();
+            }
+        };
+
+        // Also detect when mouse leaves/enters the iframe (blur/focus trick)
+        // When the iframe steals focus, we still want to show controls briefly
+        const handleWindowBlur = () => {
+            // iframe got focus — user clicked inside the video
+            // Show controls briefly then start the hide timer
+            revealControls();
+        };
+
+        window.addEventListener('mousemove', handleGlobalMouseMove, { passive: true });
+        window.addEventListener('blur', handleWindowBlur);
+
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove);
+            window.removeEventListener('blur', handleWindowBlur);
+        };
+    }, [isOpen, revealControls]);
+
+    // 2. Keyboard Shortcuts + Activity Detection
     useEffect(() => {
         if (!isOpen) return;
 
@@ -55,12 +92,12 @@ export const usePlayerControls = (isOpen, isMinimized, onClose, onMinimize, onMa
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, isMinimized, onClose, onMinimize, onMaximize, revealControls]);
 
-    // 2. Mouse Move Handler
+    // 3. Direct mouse move handler (still passed to the modal for non-iframe areas)
     const handleMouseMove = useCallback(() => {
         revealControls();
     }, [revealControls]);
 
-    // 3. Start auto-hide on mount when player is open
+    // 4. Start auto-hide on mount when player is open
     useEffect(() => {
         if (isOpen) {
             setShowControls(true);
