@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Minimize2, Maximize2, Settings, Activity, SkipForward, Play, List, Flame, ChevronRight, Tv, PartyPopper } from 'lucide-react';
+import { X, Minimize2, Maximize2, Settings, Activity, SkipForward, Play, List, Flame, Tv, PartyPopper } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { usePlayerControls } from '../../hooks/usePlayerControls';
 import { useWatchProgress } from '../../hooks/useWatchProgress';
