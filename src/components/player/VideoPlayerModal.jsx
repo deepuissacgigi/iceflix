@@ -17,8 +17,7 @@ const EXIT_DURATION = 500;
 // Countdown seconds for next-episode prompt
 const NEXT_EP_COUNTDOWN = 10;
 const BINGE_COUNTDOWN = 3;
-// Skip intro visibility duration (2 minutes in ms)
-const SKIP_INTRO_DURATION = 120000;
+// Skip intro visibility duration — REMOVED (can't seek in iframe)
 
 const VideoPlayerModal = () => {
     const { playerState, closePlayer, minimizePlayer, maximizePlayer, playTV } = useApp();
@@ -215,9 +214,6 @@ const VideoPlayerModal = () => {
     const [showEpisodeDrawer, setShowEpisodeDrawer] = useState(false);
     const [currentSeasonEpisodes, setCurrentSeasonEpisodes] = useState([]);
 
-    // ── Feature 5: Skip Intro ──
-    const [showSkipIntro, setShowSkipIntro] = useState(false);
-    const skipIntroTimerRef = useRef(null);
 
     // Fetch next episode info + season data when a TV episode opens
     useEffect(() => {
@@ -307,30 +303,10 @@ const VideoPlayerModal = () => {
         setShowNextPrompt(false);
         setCountdown(bingeMode ? BINGE_COUNTDOWN : NEXT_EP_COUNTDOWN);
         setShowEpisodeDrawer(false);
-        setShowSkipIntro(false);
         if (countdownRef.current) clearInterval(countdownRef.current);
         if (watchTimerRef.current) clearTimeout(watchTimerRef.current);
-        if (skipIntroTimerRef.current) clearTimeout(skipIntroTimerRef.current);
     }, [id, season, episode]);
 
-    // ── Feature 5: Skip Intro timer ──
-    useEffect(() => {
-        if (!isOpen || type !== 'tv' || isMinimized) return;
-
-        // Show skip intro button after 5s delay, hide after 2 min
-        const showTimer = setTimeout(() => {
-            setShowSkipIntro(true);
-        }, 5000);
-
-        skipIntroTimerRef.current = setTimeout(() => {
-            setShowSkipIntro(false);
-        }, SKIP_INTRO_DURATION);
-
-        return () => {
-            clearTimeout(showTimer);
-            if (skipIntroTimerRef.current) clearTimeout(skipIntroTimerRef.current);
-        };
-    }, [isOpen, type, isMinimized, id, season, episode]);
 
     // Watch timer — show "Next Episode" prompt after threshold
     useEffect(() => {
@@ -419,11 +395,6 @@ const VideoPlayerModal = () => {
         navigate(`/tv/${showId}`);
     }, [closePlayer, navigate]);
 
-    // Dismiss skip intro
-    const handleSkipIntro = useCallback(() => {
-        setShowSkipIntro(false);
-        // Can't actually seek in iframe, so just dismiss the button
-    }, []);
 
     // Graceful close handler
     const handleClose = useCallback((e) => {
