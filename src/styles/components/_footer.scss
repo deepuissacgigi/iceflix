@@ -12,12 +12,24 @@
         margin: 0 auto;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem; // Consistent gap
+        gap: 1.5rem;
+
+        .footer__top {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 0.5rem;
+
+            @include tablet {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
 
         .socials {
             display: flex;
             gap: 2rem;
-            margin-bottom: 0.5rem;
 
             a {
                 color: white;

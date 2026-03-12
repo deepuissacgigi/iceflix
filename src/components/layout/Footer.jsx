@@ -1,15 +1,21 @@
 import React from 'react';
-import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, PlayCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
         <footer className="footer">
             <div className="footer__content">
-                <div className="socials">
-                    <a href="#" aria-label="Facebook"><Facebook size={24} /></a>
-                    <a href="#" aria-label="Instagram"><Instagram size={24} /></a>
-                    <a href="#" aria-label="Twitter"><Twitter size={24} /></a>
-                    <a href="#" aria-label="YouTube"><Youtube size={24} /></a>
+                <div className="footer__top">
+                    <Link to="/" className="logo logo--footer" data-darkreader-inline-color style={{ '--darkreader-inline-color': 'initial' }}>
+                        ICEFLIX
+                    </Link>
+                    <div className="socials">
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={24} /></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={24} /></a>
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><Twitter size={24} /></a>
+                        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={24} /></a>
+                    </div>
                 </div>
 
                 <ul className="links">
@@ -32,7 +38,7 @@ const Footer = () => {
                     Service Code
                 </button>
 
-                <p className="copyright-text">&copy; 2025 ICEFLIX, Inc.</p>
+                <p className="copyright-text">&copy; {new Date().getFullYear()} ICEFLIX, Inc.</p>
             </div>
         </footer>
     );
