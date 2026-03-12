@@ -463,16 +463,6 @@ const VideoPlayerModal = () => {
                     />
                 </div>
 
-                {/* ═══ Feature 5: Skip Intro Button ═══ */}
-                {showSkipIntro && type === 'tv' && !isMinimized && !showAdAlert && (
-                    <button
-                        className="skip-intro-btn"
-                        onClick={(e) => { e.stopPropagation(); handleSkipIntro(); }}
-                    >
-                        Skip Intro
-                        <ChevronRight size={16} />
-                    </button>
-                )}
 
                 {/* ═══ Next Episode Overlay (Enhanced) ═══ */}
                 {showNextPrompt && nextEpisodeInfo && !isMinimized && (
