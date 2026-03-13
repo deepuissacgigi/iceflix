@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { ContinueWatchingService } from '../services/continueWatchingService';
 
 /**
  * Tracks how long the player has been open and persists progress.
@@ -47,8 +48,9 @@ export const useWatchProgress = (isOpen, mediaInfo, saveProgress) => {
             return;
         }
 
-        // Player opened — reset
-        progressRef.current = 0;
+        // Player opened or transitioned — fetch baseline progress
+        const baseline = ContinueWatchingService.getResumeTime(mediaInfo.id, mediaInfo.mediaType, mediaInfo.season, mediaInfo.episode);
+        progressRef.current = baseline || 0;
 
         // Tick every second
         trackingRef.current = setInterval(() => {
@@ -70,5 +72,5 @@ export const useWatchProgress = (isOpen, mediaInfo, saveProgress) => {
             // Final persist on cleanup
             if (progressRef.current > 0) persist();
         };
-    }, [isOpen, mediaInfo?.id, persist]);
+    }, [isOpen, mediaInfo?.id, mediaInfo?.season, mediaInfo?.episode, persist]);
 };

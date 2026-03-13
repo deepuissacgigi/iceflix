@@ -23,10 +23,18 @@ export const ContinueWatchingService = {
      * @param {string} mediaType 
      * @returns {number} Saved progress or 0
      */
-    getResumeTime: (id, mediaType) => {
+    getResumeTime: (id, mediaType, season = null, episode = null) => {
         const items = getContinueWatching();
         const item = items.find(i => i.id === id && i.mediaType === mediaType);
-        return item ? item.progress : 0;
+        if (!item) return 0;
+
+        // For TV shows, enforce exact season/episode match
+        if (mediaType === 'tv') {
+            if (item.season !== season || item.episode !== episode) {
+                return 0; // It's a different episode, start from 0
+            }
+        }
+        return item.progress;
     },
 
     /**
@@ -38,8 +46,8 @@ export const ContinueWatchingService = {
     saveProgress: (item, currentProgress, totalDuration) => {
         if (!item || !item.id) return;
 
-        // Check if finished
-        if (totalDuration > 0) {
+        // Check if finished (movies only, preserve TV shows for active binging)
+        if (totalDuration > 0 && item.mediaType === 'movie') {
             const percentage = currentProgress / totalDuration;
             if (percentage >= FINISHED_THRESHOLD) {
                 removeContinueWatching(item.id, item.mediaType);
